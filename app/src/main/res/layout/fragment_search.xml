@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.search.SearchFragment">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
+                android:id="@+id/serial_layout"
+                android:hint="@string/system_serial"
+                android:padding="@dimen/table_row_padding_small">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_serial"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="textCapCharacters"
+                    android:textColor="@color/primaryTextColor"
+                    android:textColorHint="@color/primaryLightColor"
+                    tools:ignore="TextContrastCheck" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <ImageButton
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:layout_width="0dp"
+                android:id="@+id/search_button"
+                android:src="@drawable/ic_baseline_search_24"
+                android:contentDescription="@string/searchDec"
+
+                />
+
+
+        </TableRow>
+
+
+    </TableLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/productDetails"
+        android:padding="@dimen/table_row_padding_small"
+        app:cardCornerRadius="6dp"
+        android:elevation="8dp">
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:textStyle="bold|normal"
+                    android:text="@string/customer_name"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_customer"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/customer_name"
+                    />
+            </TableRow>
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/data_center"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_datacenter"
+                    android:layout_weight="1"
+                    android:text="@string/data_center"
+                    />
+            </TableRow>
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:textStyle="bold|normal"
+                    android:text="@string/rack_number"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_rack"
+                    android:layout_weight="1"
+                    android:text="@string/rack_number"
+                    />
+            </TableRow>
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/system_type"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_system_type"
+                    android:layout_weight="1"
+                    android:text="@string/system_type"
+                    />
+            </TableRow>
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/form_factor"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_formFactor"
+                    android:layout_weight="1"
+                    android:text="@string/form_factor"
+                    />
+            </TableRow>
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/device_vendor"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_vendor"
+                    android:layout_weight="1"
+                    android:text="@string/device_vendor"
+                    />
+            </TableRow>
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/enclosure_serial"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_encSerial"
+                    android:layout_weight="1"
+                    android:text="@string/enclosure_serial"
+                    />
+            </TableRow>
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/enclosure_model"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_encModel"
+                    android:layout_weight="1"
+                    android:text="@string/enclosure_model"
+                    />
+            </TableRow>
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/server_slot"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_slot"
+                    android:layout_weight="1"
+                    android:text="@string/server_slot"
+                    />
+            </TableRow>
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/system_serial"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_id"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/system_serial"
+                    />
+            </TableRow>
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/rack_position"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_rackPosition"
+                    android:layout_weight="1"
+                    android:text="@string/rack_position"
+                    />
+            </TableRow>
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/system_model"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_model"
+                    android:layout_weight="1"
+                    android:text="@string/system_model"
+                    />
+            </TableRow>
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:textStyle="bold|normal"
+                    android:text="@string/system_product"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_modelNumber"
+                    android:layout_weight="1"
+                    android:text="@string/system_product"
+                    />
+            </TableRow>
+
+            <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold|normal"
+                    android:layout_weight="1"
+                    android:text="@string/engineer"
+                    />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:id="@+id/search_engineer"
+                    android:layout_weight="1"
+                    android:text="@string/engineer"
+                    />
+            </TableRow>
+
+        </TableLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+</LinearLayout>

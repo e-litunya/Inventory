@@ -1,0 +1,96 @@
+<resources>
+    <string name="app_name">Copy Cat DC Inventory</string>
+    <string name="title_entry">Entry</string>
+    <string name="title_search">Search</string>
+    <string name="title_reports">Reports</string>
+    <string name="customer_name">Customer Name</string>
+    <string name="data_center">Data Center</string>
+    <string name="rack_number">Rack Name</string>
+    <string name="system_type">Device Type</string>
+    <string name="form_factor">Form Factor</string>
+    <string name="rack_position">Rack Position RU</string>
+    <string name="system_model">Product Model</string>
+    <string name="system_serial">Serial Number</string>
+    <string name="system_product">Product Number</string>
+    <string name="save">Save</string>
+    <string name="capture">Capture</string>
+    <string name="emailEmpty">Email cannot be empty</string>
+    <string name="passwordEmpty">Password cannot be empty</string>
+    <string name="device_vendor">Manufacturer</string>
+    <string name="mismatch">Entered passwords do not match</string>
+    <string name="complexPassword">Password must have at least 8 characters, lowercase,uppercase,number and symbol</string>
+    <string name="accountSuccess">Sign up successful verify your email</string>
+    <string name="phoneEmpty">Phone number cannot be empty</string>
+    <string-array name="device_type">
+        <item>Compute</item>
+        <item>Storage</item>
+        <item>SAN Switch</item>
+        <item>"I/O Module"</item>
+        <item>Network</item>
+        <item>Security</item>
+    </string-array>
+    <string-array name="device_form">
+        <item>Rack mount</item>
+        <item>Blade</item>
+        <item>Tower</item>
+        <item>Chassis</item>
+    </string-array>
+    <string name="enclosure_serial">Chassis Serial Number</string>
+    <string name="enclosure_model">Chassis Model</string>
+    <string name="server_slot">Device Slot</string>
+    <string name="searchDec">Search</string>
+    <string name="cclLogo">Copy Cat</string>
+    <string name="user_email">Email</string>
+    <string name="user_password">Enter Password</string>
+    <string name="retype_password">Re-type Password</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="register">REGISTER</string>
+
+    <string-array name="vendors">
+        <item>HPE</item>
+        <item>DellEMC</item>
+        <item>IBM</item>
+        <item>Cisco</item>
+        <item>Lenovo</item>
+        <item>Huawei</item>
+        <item>Veritas</item>
+        <item>Gigabyte</item>
+        <item>Oracle</item>
+
+    </string-array>
+    <string name="title_activity_launcher">CCL DC Inventory</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="country">KE</string>
+    <!-- Strings used for fragments for navigation -->
+
+    <string name="pass_reset">Forgot Password?</string>
+    <string name="sign">SIGN IN</string>
+    <string name="AppName">CCL DC Inventory</string>
+    <string name="passwordSignIn">Sign in with Password…</string>
+    <string name="phoneSignIn">Sign in with phone…</string>
+    <string name="resetPassword">Resetting password…</string>
+    <string name="checkEmail">Check email for instructions</string>
+    <string name="emailPassEmpty">Email or Password cannot be empty</string>
+    <string name="logOncomplete">Sign in complete… Welcome</string>
+    <string name="signup">Signing up, please wait…</string>
+    <string name="defRack">0 -- 0</string>
+    <string name="emptyString">\"\"</string>
+    <string name="saveStart">Saving the device details...</string>
+    <string name="saveComplete">Device Details Saved Successfully</string>
+    <string name="unavailable">Not Applicable</string>
+    <string name="emptySerial">Serial Number cannot be empty</string>
+    <string name="searchStart">Searching, Please Wait...</string>
+    <string name="noRecord">"No Record Found for "</string>
+    <string name="errorLabel">Error :</string>
+    <string name="engineer">Created By</string>
+    <string name="moto">Catalyst for the future</string>
+    <string name="agile">Agile</string>
+    <string name="bold">Bold</string>
+    <string name="creative">Creative</string>
+    <string name="dynamic">Dynamic</string>
+    <string name="emptyLabel"> cannot be empty</string>
+    <string name="system_machine">Machine Type</string>
+    <string name="invalidPassword">Password entred is Invalid</string>
+    <string name="invalidEmail">Email address is invalid</string>
+    <string name="validationError">Cannot Validate Device based on entered data</string>
+</resources>

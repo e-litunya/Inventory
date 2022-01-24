@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".RegisterActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/cclLogo"
+        app:srcCompat="@mipmap/ic_ccllogo"
+        android:paddingTop="@dimen/table_row_padding"
+        tools:ignore="ImageContrastCheck" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/email_layout"
+        android:hint="@string/user_email"
+        android:padding="@dimen/table_row_padding_small">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/primaryLightColor"
+        android:inputType="textEmailAddress"
+        android:id="@+id/userEmail"
+        android:textColor="@color/primaryTextColor"
+        tools:ignore="TextContrastCheck" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/password_layout"
+        android:hint="@string/user_password"
+        android:padding="@dimen/table_row_padding_small">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/primaryLightColor"
+            android:inputType="textPassword"
+            android:id="@+id/userPassword"
+            android:textColor="@color/primaryTextColor"
+            tools:ignore="TextContrastCheck" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/retype_password_layout"
+        android:hint="@string/retype_password"
+        android:padding="@dimen/table_row_padding_small">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/primaryLightColor"
+            android:inputType="textPassword"
+            android:id="@+id/userRetypePassword"
+            android:textColor="@color/primaryTextColor"
+            tools:ignore="TextContrastCheck" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+        <TableRow android:weightSum="1" android:padding="@dimen/table_row_padding"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+            <com.hbb20.CountryCodePicker
+                android:layout_width="0dp"
+                android:layout_weight="0.2"
+                android:id="@+id/country_code"
+                app:ccp_defaultNameCode="@string/country"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_weight="0.8"
+                android:layout_height="wrap_content"
+                android:id="@+id/phone_number"
+                android:hint="@string/phone_number"
+                android:padding="@dimen/table_row_padding_small">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="@color/primaryLightColor"
+                    android:inputType="phone"
+                    android:id="@+id/telephone"
+                    android:textColor="@color/primaryTextColor"
+                    tools:ignore="TextContrastCheck" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </TableRow>
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:attr/buttonBarButtonStyle"
+        android:id="@+id/btn_Register"
+        android:text="@string/register"
+        android:textStyle="bold"
+        android:elevation="@dimen/table_row_padding_small"
+        />
+
+</LinearLayout>

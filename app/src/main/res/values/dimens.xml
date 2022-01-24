@@ -1,0 +1,5 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="table_row_padding">16dp</dimen>
+    <dimen name="table_row_padding_small">4dp</dimen>
+</resources>

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".ui.entry.EntryFragment">
+
+<com.google.android.material.textfield.TextInputLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/customer_name"
+    android:padding="@dimen/table_row_padding_small">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/primaryLightColor"
+        android:id="@+id/customer_name"
+        android:inputType="textCapWords"
+        android:textColor="@color/primaryTextColor"
+        tools:ignore="TextContrastCheck" />
+
+</com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/data_center"
+        android:padding="@dimen/table_row_padding_small">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/primaryLightColor"
+            android:inputType="textCapWords"
+            android:id="@+id/datacenter_name"
+            android:textColor="@color/primaryTextColor"
+            tools:ignore="TextContrastCheck"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/rack_number"
+        android:padding="@dimen/table_row_padding_small">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rack_number"
+            android:textColorHint="@color/primaryLightColor"
+            android:inputType="textCapWords"
+            android:textColor="@color/primaryTextColor"
+            tools:ignore="TextContrastCheck"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+<TableLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TableRow android:padding="@dimen/table_row_padding_small" android:weightSum="1">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/device_type"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:id="@+id/system_type"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/system_type"
+                android:inputType="none"
+                tools:ignore="TextContrastCheck" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </TableRow>
+
+    <TableRow android:padding="@dimen/table_row_padding_small" android:weightSum="1">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/form_factor"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:id="@+id/form_type"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/form_factor"
+                android:inputType="none" />
+
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </TableRow >
+
+    <TableRow android:padding="@dimen/table_row_padding_small" android:weightSum="1">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/device_vendor"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:id="@+id/vendor"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/device_vendor"
+                android:inputType="none"
+                tools:ignore="TextContrastCheck" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </TableRow>
+    <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="1">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="@string/enclosure_serial"
+            android:id="@+id/enclosure_sn"
+            android:padding="@dimen/table_row_padding_small">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/chassis_sn"
+                android:textColorHint="@color/primaryLightColor"
+                android:inputType="textCapCharacters"
+                android:textColor="@color/primaryTextColor"
+                tools:ignore="TextContrastCheck"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </TableRow>
+    <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="1">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/enclosure_type"
+            android:hint="@string/enclosure_model"
+            android:padding="@dimen/table_row_padding_small">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/enclosure_model"
+                android:textColorHint="@color/primaryLightColor"
+                android:inputType="textCapWords"
+                android:textColor="@color/primaryTextColor"
+                tools:ignore="TextContrastCheck"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="@dimen/table_row_padding_small">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/slot"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/server_slot"
+            android:padding="@dimen/table_row_padding_small">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/chassis_slot"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textCapWords"
+                android:textColor="@color/primaryTextColor"
+                android:textColorHint="@color/primaryLightColor"
+                tools:ignore="TextContrastCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </TableRow>
+
+    <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="1">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/serial_number"
+            android:hint="@string/system_serial"
+            android:padding="@dimen/table_row_padding_small">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/system_serial"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textCapCharacters"
+                android:textColor="@color/primaryTextColor"
+                android:textColorHint="@color/primaryLightColor"
+                tools:ignore="TextContrastCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </TableRow>
+    <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="3" >
+
+        <TextView
+            android:id="@+id/rack_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/rack_position"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/rack_from"
+            android:padding="@dimen/table_row_padding_small">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/rack_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:textSize="16sp"
+                android:textColor="@color/primaryTextColor"
+                android:textColorHint="@color/primaryLightColor"
+                tools:ignore="TextContrastCheck,TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/rack_to"
+            android:padding="@dimen/table_row_padding_small">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/rack_end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:textSize="16sp"
+                android:textColor="@color/primaryTextColor"
+                android:textColorHint="@color/primaryLightColor"
+                tools:ignore="TextContrastCheck,TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </TableRow>
+
+    <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="1">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/model"
+            android:hint="@string/system_model"
+            android:padding="@dimen/table_row_padding_small">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/system_model"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textCapWords"
+                android:textColor="@color/primaryTextColor"
+                android:textColorHint="@color/primaryLightColor"
+                tools:ignore="TextContrastCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </TableRow>
+    <TableRow android:padding="@dimen/table_row_padding_small" android:layout_weight="1">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/product_number"
+            android:hint="@string/system_product"
+            android:padding="@dimen/table_row_padding_small">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/system_product"
+                android:textColorHint="@color/primaryLightColor"
+                android:inputType="textCapCharacters"
+                android:textColor="@color/primaryTextColor"
+                tools:ignore="TextContrastCheck"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </TableRow>
+
+    <TableRow android:padding="@dimen/table_row_padding_small" android:weightSum="1">
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/save"
+            android:id="@+id/saveButton"
+            android:src="@mipmap/outline_save_white_48"
+            android:background="@color/primaryDarkColor"
+            />
+    </TableRow>
+
+</TableLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/ocrButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:contentDescription="@string/capture"
+        android:layout_margin="@dimen/table_row_padding"
+        android:src="@drawable/ic_baseline_camera_48"
+        app:fabSize="normal" />
+
+</LinearLayout>
+
+</ScrollView>
