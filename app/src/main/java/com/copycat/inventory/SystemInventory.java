@@ -87,6 +87,8 @@ public class SystemInventory {
     public SystemInventory() {
     }
 
+
+
     @Exclude
     public String getCustomerName() {
         return customerName;

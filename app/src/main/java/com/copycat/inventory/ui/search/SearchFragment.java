@@ -111,6 +111,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
 
                     if (systemInventory!=null)
                     {
+                        checkNullFields(systemInventory);
                         customer.setText(systemInventory.getCustomerName());
                         datacenter.setText(systemInventory.getDataCenter());
                         rack.setText(systemInventory.getRackName());
@@ -122,28 +123,9 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
                         deviceNumber.setText(systemInventory.getDeviceModelNumber());
                         rackPosition.setText(systemInventory.getRackPosition());
                         engineer.setText(systemInventory.getUserID());
-                        try {
+                        chassisSerial.setText(systemInventory.getChassisSerial());
+                        chassisModel.setText(systemInventory.getChassisModel());
 
-                            if ((!checkConverged(systemInventory.getDeviceFormFactor(),systemInventory.getDeviceType()))||(systemInventory.getDeviceModelNumber()==null))
-                            {
-                                chassisModel.setText(getResources().getString(R.string.unavailable));
-                                chassisSerial.setText(getResources().getString(R.string.unavailable));
-                                chassisSlot.setText(getResources().getString(R.string.unavailable));
-                                deviceNumber.setText(getResources().getString(R.string.unavailable));
-                            }
-                            else
-                            {
-                                chassisModel.setText(systemInventory.getChassisModel());
-                                chassisSerial.setText(systemInventory.getChassisSerial());
-                                chassisSlot.setText(systemInventory.getServerSlot());
-                                deviceNumber.setText(systemInventory.getDeviceModelNumber());
-                            }
-
-
-                        }catch (NullPointerException e)
-                        {
-                            e.printStackTrace();
-                        }
                     }
 
 
@@ -169,25 +151,6 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    private boolean checkConverged(String deviceForm, String deviceType) throws NullPointerException
-    {
-        boolean converged;
-
-        if (deviceForm.equalsIgnoreCase("Blade"))
-        {
-            converged=true;
-        }
-        else if (deviceType.equalsIgnoreCase("I/O Module"))
-        {
-            converged=true;
-        }
-        else
-        {
-            converged=false;
-        }
-
-        return converged;
-    }
 
     private void setProgressDialogMessage(String message)
     {
@@ -232,6 +195,44 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         deviceNumber.setText(emptyText);
         engineer.setText(emptyText);
 
+
+
+    }
+
+    private void checkNullFields(SystemInventory systemInventory)
+    {
+        if (TextUtils.isEmpty(systemInventory.getDeviceModelNumber()) || systemInventory.getDeviceModelNumber()==null)
+        {
+            systemInventory.setDeviceModelNumber(getResources().getString(R.string.unavailable));
+        }
+        else if (TextUtils.isEmpty(systemInventory.getDeviceFormFactor()) || systemInventory.getDeviceFormFactor()==null)
+        {
+            systemInventory.setDeviceFormFactor(getResources().getString(R.string.unavailable));
+        }
+        else if (TextUtils.isEmpty(systemInventory.getChassisSerial()) || systemInventory.getChassisSerial()==null)
+        {
+            systemInventory.setChassisSerial(getResources().getString(R.string.unavailable));
+        }
+        else if (TextUtils.isEmpty(systemInventory.getChassisModel()) || systemInventory.getChassisModel()==null)
+        {
+            systemInventory.setChassisModel(getResources().getString(R.string.unavailable));
+        }
+        else if (TextUtils.isEmpty(systemInventory.getDeviceSerial()) || systemInventory.getDeviceSerial()==null)
+        {
+            systemInventory.setDeviceSerial(getResources().getString(R.string.unavailable));
+        }
+        else if (TextUtils.isEmpty(systemInventory.getRackPosition()) || systemInventory.getRackPosition()==null)
+        {
+            systemInventory.setRackPosition(getResources().getString(R.string.unavailable));
+        }
+        if ((systemInventory.getServerSlot()==0)||(String.valueOf(systemInventory.getServerSlot()).equalsIgnoreCase("")))
+        {
+            chassisSlot.setText(getResources().getString(R.string.unavailable));
+        }
+        else
+        {
+            chassisSlot.setText(String.valueOf(systemInventory.getServerSlot()));
+        }
 
 
     }
