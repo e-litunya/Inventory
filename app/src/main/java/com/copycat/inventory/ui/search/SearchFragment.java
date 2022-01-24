@@ -1,6 +1,7 @@
 package com.copycat.inventory.ui.search;
 
 import android.app.ProgressDialog;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -35,7 +36,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
     private EditText serialNumber;
     private TextView customer,datacenter,rack,deviceType,engineer,
             formFactor,vendor,chassisSerial,chassisModel,
-            chassisSlot,deviceID,deviceModel,deviceNumber,rackPosition;
+            chassisSlot,deviceID,deviceModel,deviceNumber,rackPosition,productLabel;
     private ImageButton imageButton;
     private ProgressDialog progressDialog;
 
@@ -50,6 +51,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
 
         serialNumber=root.findViewById(R.id.search_serial);
         customer=root.findViewById(R.id.search_customer);
+        productLabel=root.findViewById(R.id.vendorLabel);
         datacenter=root.findViewById(R.id.search_datacenter);
         rack=root.findViewById(R.id.search_rack);
         deviceType=root.findViewById(R.id.search_system_type);
@@ -205,23 +207,23 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         {
             systemInventory.setDeviceModelNumber(getResources().getString(R.string.unavailable));
         }
-        else if (TextUtils.isEmpty(systemInventory.getDeviceFormFactor()) || systemInventory.getDeviceFormFactor()==null)
+        if (TextUtils.isEmpty(systemInventory.getDeviceFormFactor()) || systemInventory.getDeviceFormFactor()==null)
         {
             systemInventory.setDeviceFormFactor(getResources().getString(R.string.unavailable));
         }
-        else if (TextUtils.isEmpty(systemInventory.getChassisSerial()) || systemInventory.getChassisSerial()==null)
+        if (TextUtils.isEmpty(systemInventory.getChassisSerial()) || systemInventory.getChassisSerial()==null)
         {
             systemInventory.setChassisSerial(getResources().getString(R.string.unavailable));
         }
-        else if (TextUtils.isEmpty(systemInventory.getChassisModel()) || systemInventory.getChassisModel()==null)
+        if (TextUtils.isEmpty(systemInventory.getChassisModel()) || systemInventory.getChassisModel()==null)
         {
             systemInventory.setChassisModel(getResources().getString(R.string.unavailable));
         }
-        else if (TextUtils.isEmpty(systemInventory.getDeviceSerial()) || systemInventory.getDeviceSerial()==null)
+        if (TextUtils.isEmpty(systemInventory.getDeviceSerial()) || systemInventory.getDeviceSerial()==null)
         {
             systemInventory.setDeviceSerial(getResources().getString(R.string.unavailable));
         }
-        else if (TextUtils.isEmpty(systemInventory.getRackPosition()) || systemInventory.getRackPosition()==null)
+        if (TextUtils.isEmpty(systemInventory.getRackPosition()) || systemInventory.getRackPosition()==null)
         {
             systemInventory.setRackPosition(getResources().getString(R.string.unavailable));
         }
@@ -232,6 +234,22 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         else
         {
             chassisSlot.setText(String.valueOf(systemInventory.getServerSlot()));
+        }
+
+        if (systemInventory.getDeviceManufacturer().equalsIgnoreCase("IBM"))
+        {
+            productLabel.setText(getResources().getString(R.string.system_machine));
+        }
+        else
+        {
+            productLabel.setText(R.string.system_product);
+        }
+        if (systemInventory.getDeviceFormFactor().equalsIgnoreCase("Chassis"))
+        {
+            systemInventory.setDeviceModel(getResources().getString(R.string.unavailable));
+            systemInventory.setDeviceSerial(getResources().getString(R.string.unavailable));
+            chassisSerial.setTypeface(chassisSerial.getTypeface(), Typeface.BOLD);
+            deviceID.setTypeface(deviceID.getTypeface(),Typeface.NORMAL);
         }
 
 

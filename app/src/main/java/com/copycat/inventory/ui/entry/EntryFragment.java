@@ -258,6 +258,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             systemInventory.setDeviceType(device);
             systemInventory.setDeviceFormFactor(deviceForm);
             systemInventory.setDeviceManufacturer(deviceVendor);
+            systemInventory.setDeviceSerial(enclosureSn.getText().toString());
             systemInventory.setChassisSerial(enclosureSn.getText().toString());
             systemInventory.setChassisModel(enclosureModel.getText().toString());
             systemInventory.setRackPosition(rackLocation);

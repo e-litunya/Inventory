@@ -303,6 +303,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:layout_weight="1"
+                    android:id="@+id/vendorLabel"
                     android:textStyle="bold|normal"
                     android:text="@string/system_product"
                     />
