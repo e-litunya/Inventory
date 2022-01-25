@@ -94,4 +94,7 @@
     <string name="invalidEmail">Email address is invalid</string>
     <string name="validationError">Cannot Validate Device based on entered data</string>
     <string name="chassisquery">is a chassis searching...</string>
+    <string name="error">Error in running OCR</string>
+    <string name="clipboard">clipboard data</string>
+    <string name="imageIssue">Issue with camera image</string>
 </resources>

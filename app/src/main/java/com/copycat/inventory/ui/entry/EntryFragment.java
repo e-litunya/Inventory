@@ -1,21 +1,28 @@
 package com.copycat.inventory.ui.entry;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -24,28 +31,51 @@ import androidx.lifecycle.ViewModelProvider;
 import com.copycat.inventory.MainActivity;
 import com.copycat.inventory.R;
 import com.copycat.inventory.SystemInventory;
+import com.copycat.inventory.TakeImage;
 import com.copycat.inventory.databinding.FragmentEntryBinding;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class EntryFragment extends Fragment implements View.OnClickListener {
 
     private FragmentEntryBinding binding;
-    private EntryViewModel entryViewModel;
-    private AutoCompleteTextView vendors,deviceType,formFactor;
-    private volatile boolean unified,standalone,typeNumber,chassis,validationStatus;
-    private String userID,deviceVendor,deviceForm,device;
-    private EditText customerName,datacenterName,rack,enclosureSn,enclosureModel,deviceSlot,serialNumber,rackStart,rackEnd,deviceModel,modelNumber;
+    private AutoCompleteTextView vendors, deviceType, formFactor;
+    private volatile boolean unified, standalone, typeNumber, chassis, validationStatus;
+    private String deviceVendor;
+    private Bitmap bitmap;
+    private ActivityResultRegistry registry;
+    private String deviceForm;
+    private String device;
+    private final ActivityResultLauncher<String> ocrLauncher = registerForActivityResult(new TakeImage(), Objects.requireNonNull(registry), new ActivityResultCallback<Uri>() {
+        @Override
+        public void onActivityResult(Uri result) {
+            if (result != null) {
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), result);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    });
+
+    private EditText customerName, datacenterName, rack, enclosureSn, enclosureModel, deviceSlot, serialNumber, rackStart, rackEnd, deviceModel, modelNumber;
     private FloatingActionButton captureButton;
     private ImageButton saveButton;
     private ProgressDialog progressDialog;
-    private boolean computeIO,nonCompute;
+    private boolean computeIO, nonCompute;
     private TextInputLayout machineType;
+
 
     public EntryFragment() {
     }
@@ -61,121 +91,98 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
 
         });
 
-        customerName=root.findViewById(R.id.customer_name);
-        datacenterName=root.findViewById(R.id.datacenter_name);
-        rack=root.findViewById(R.id.rack_number);
-        enclosureSn=root.findViewById(R.id.chassis_sn);
-        enclosureModel=root.findViewById(R.id.enclosure_model);
-        deviceSlot=root.findViewById(R.id.chassis_slot);
-        serialNumber=root.findViewById(R.id.system_serial);
-        rackStart=root.findViewById(R.id.rack_start);
-        rackEnd=root.findViewById(R.id.rack_end);
-        deviceModel=root.findViewById(R.id.system_model);
-        modelNumber=root.findViewById(R.id.system_product);
-        vendors=root.findViewById(R.id.vendor);
-        deviceType=root.findViewById(R.id.system_type);
-        machineType=root.findViewById(R.id.product_number);
-        formFactor=root.findViewById(R.id.form_type);
-        saveButton=root.findViewById(R.id.saveButton);
-        captureButton=root.findViewById(R.id.ocrButton);
-        progressDialog=new ProgressDialog(getContext());
+        customerName = root.findViewById(R.id.customer_name);
+        datacenterName = root.findViewById(R.id.datacenter_name);
+        rack = root.findViewById(R.id.rack_number);
+        enclosureSn = root.findViewById(R.id.chassis_sn);
+        enclosureModel = root.findViewById(R.id.enclosure_model);
+        deviceSlot = root.findViewById(R.id.chassis_slot);
+        serialNumber = root.findViewById(R.id.system_serial);
+        rackStart = root.findViewById(R.id.rack_start);
+        rackEnd = root.findViewById(R.id.rack_end);
+        deviceModel = root.findViewById(R.id.system_model);
+        modelNumber = root.findViewById(R.id.system_product);
+        vendors = root.findViewById(R.id.vendor);
+        deviceType = root.findViewById(R.id.system_type);
+        machineType = root.findViewById(R.id.product_number);
+        formFactor = root.findViewById(R.id.form_type);
+        saveButton = root.findViewById(R.id.saveButton);
+        captureButton = root.findViewById(R.id.ocrButton);
+        progressDialog = new ProgressDialog(getContext());
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setTitle(R.string.AppName);
 
-        String [] devices=getResources().getStringArray(R.array.device_type);
-        String [] forms=getResources().getStringArray(R.array.device_form);
-        String [] vendor=getResources().getStringArray(R.array.vendors);
-        ArrayAdapter<String> devicesAdapter=new ArrayAdapter<String>(getContext(),R.layout.dropdown_layout,devices);
-        ArrayAdapter<String> formsAdapter=new ArrayAdapter<String>(getContext(),R.layout.dropdown_layout,forms);
-        ArrayAdapter<String> vendorAdapter=new ArrayAdapter<String>(getContext(),R.layout.dropdown_layout,vendor);
+        String[] devices = getResources().getStringArray(R.array.device_type);
+        String[] forms = getResources().getStringArray(R.array.device_form);
+        String[] vendor = getResources().getStringArray(R.array.vendors);
+        ArrayAdapter<String> devicesAdapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_layout, devices);
+        ArrayAdapter<String> formsAdapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_layout, forms);
+        ArrayAdapter<String> vendorAdapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_layout, vendor);
         vendors.setAdapter(vendorAdapter);
         deviceType.setAdapter(devicesAdapter);
         formFactor.setAdapter(formsAdapter);
-        formFactor.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                deviceForm=parent.getItemAtPosition(position).toString();
+        formFactor.setOnItemClickListener((parent, view, position, id) -> {
+            deviceForm = parent.getItemAtPosition(position).toString();
 
-                if (position==1 || position==3)
-                {
-                    binding.enclosureSn.setEnabled(true);
-                    binding.enclosureType.setEnabled(true);
-                    binding.slot.setEnabled(true);
-                    unified=true;
-                    standalone=false;
+            if (position == 1 || position == 3) {
+                binding.enclosureSn.setEnabled(true);
+                binding.enclosureType.setEnabled(true);
+                binding.slot.setEnabled(true);
+                unified = true;
+                standalone = false;
 
 
-                }
-                else
-                {
-                    binding.enclosureSn.setEnabled(false);
-                    binding.enclosureType.setEnabled(false);
-                    binding.slot.setEnabled(false);
-                    rackStart.setEnabled(true);
-                    rackEnd.setEnabled(true);
-                    unified=false;
-                    standalone=true;
-                }
-                if (position==3)
-                {
-                    chassis=true;
-                    deviceSlot.setEnabled(false);
-                }
+            } else {
+                binding.enclosureSn.setEnabled(false);
+                binding.enclosureType.setEnabled(false);
+                binding.slot.setEnabled(false);
+                rackStart.setEnabled(true);
+                rackEnd.setEnabled(true);
+                unified = false;
+                standalone = true;
+            }
+            if (position == 3) {
+                chassis = true;
+                deviceSlot.setEnabled(false);
             }
         });
-        deviceType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                device=parent.getItemAtPosition(position).toString();
+        deviceType.setOnItemClickListener((parent, view, position, id) -> {
+            device = parent.getItemAtPosition(position).toString();
 
-               if (position==0)
-               {
-                   formFactor.setEnabled(true);
+            if (position == 0) {
+                formFactor.setEnabled(true);
 
-                   nonCompute=false;
-               }
-               else
-               {
+                nonCompute = false;
+            } else {
 
-                   nonCompute=true;
-               }
-                if (position==3)
-                {
-                    binding.enclosureSn.setEnabled(true);
-                    binding.enclosureType.setEnabled(true);
-                    binding.slot.setEnabled(true);
-                    computeIO=true;
-                }
-                else
-                {
-                    binding.enclosureSn.setEnabled(false);
-                    binding.enclosureType.setEnabled(false);
-                    binding.slot.setEnabled(false);
-                    computeIO=false;
-                }
+                nonCompute = true;
+            }
+            if (position == 3) {
+                binding.enclosureSn.setEnabled(true);
+                binding.enclosureType.setEnabled(true);
+                binding.slot.setEnabled(true);
+                computeIO = true;
+            } else {
+                binding.enclosureSn.setEnabled(false);
+                binding.enclosureType.setEnabled(false);
+                binding.slot.setEnabled(false);
+                computeIO = false;
             }
         });
         saveButton.setOnClickListener(this);
-        vendors.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        captureButton.setOnClickListener(this);
+        vendors.setOnItemClickListener((parent, view, position, id) -> {
 
-                deviceVendor=parent.getItemAtPosition(position).toString();
-                if (position==0)
-                {
-                    typeNumber=true;
-                    machineType.setHint(R.string.system_product);
-                }
-                else if (position==2)
-                {
-                    typeNumber=true;
-                    machineType.setHint(R.string.system_machine);
-                }
-                else
-                {
-                    typeNumber=false;
-                }
+            deviceVendor = parent.getItemAtPosition(position).toString();
+            if (position == 0) {
+                typeNumber = true;
+                machineType.setHint(R.string.system_product);
+            } else if (position == 2) {
+                typeNumber = true;
+                machineType.setHint(R.string.system_machine);
+            } else {
+                typeNumber = false;
             }
         });
 
@@ -188,10 +195,8 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
-
     }
+
 
     @Override
     public void onDestroyView() {
@@ -199,59 +204,46 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         binding = null;
     }
 
-    private String getUserID(String user)
-    {
-        String userName="";
-        if(!TextUtils.isEmpty(user))
-        {
-            String [] arrays=user.split("@");
-            userName=arrays[0];
+    private String getUserID(String user) {
+        String userName = "";
+        if (!TextUtils.isEmpty(user)) {
+            String[] arrays = user.split("@");
+            userName = arrays[0];
         }
 
 
         return userName;
     }
 
-    private String getRackPosition (String start, String end)
-    {
-        return start+" -- "+end;
+    private String getRackPosition(String start, String end) {
+        return start + " -- " + end;
     }
 
-    private void saveData()
-    {
+    private void saveData() {
         fieldsValidation();
-        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference();
-        userID=getUserID(MainActivity.userID);
-        String rackLocation=getResources().getString(R.string.defRack);
-        if (standalone && validationStatus)
-        {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        String userID = getUserID(MainActivity.userID);
+        String rackLocation = getResources().getString(R.string.defRack);
+        if (standalone && validationStatus) {
             setProgressDialogMessage(getResources().getString(R.string.saveStart));
-            rackLocation=getRackPosition(rackStart.getText().toString(),rackEnd.getText().toString());
-            SystemInventory systemInventory=new SystemInventory(customerName.getText().toString(),
-                    datacenterName.getText().toString(),rack.getText().toString(),device,deviceForm,deviceVendor,
-                    serialNumber.getText().toString(),rackLocation,deviceModel.getText().toString(),
-                    modelNumber.getText().toString(),userID);
-            databaseReference.push().setValue(systemInventory, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+            rackLocation = getRackPosition(rackStart.getText().toString(), rackEnd.getText().toString());
+            SystemInventory systemInventory = new SystemInventory(customerName.getText().toString(),
+                    datacenterName.getText().toString(), rack.getText().toString(), device, deviceForm, deviceVendor,
+                    serialNumber.getText().toString(), rackLocation, deviceModel.getText().toString(),
+                    modelNumber.getText().toString(), userID);
+            databaseReference.push().setValue(systemInventory, (error, ref) -> {
 
-                    if (error==null)
-                    {
-                       setProgressDialogMessage(getResources().getString(R.string.saveComplete));
-                    }
-                    else
-                    {
-                        String errorString="Error: "+error.getMessage();
-                        setProgressDialogMessage(errorString);
-                    }
+                if (error == null) {
+                    setProgressDialogMessage(getResources().getString(R.string.saveComplete));
+                } else {
+                    String errorString = "Error: " + error.getMessage();
+                    setProgressDialogMessage(errorString);
                 }
             });
-        }
-      else if (chassis && validationStatus)
-        {
+        } else if (chassis && validationStatus) {
             setProgressDialogMessage(getResources().getString(R.string.saveStart));
-            rackLocation=getRackPosition(rackStart.getText().toString(),rackEnd.getText().toString());
-            SystemInventory systemInventory=new SystemInventory();
+            rackLocation = getRackPosition(rackStart.getText().toString(), rackEnd.getText().toString());
+            SystemInventory systemInventory = new SystemInventory();
             systemInventory.setCustomerName(customerName.getText().toString());
             systemInventory.setDataCenter(datacenterName.getText().toString());
             systemInventory.setRackName(rack.getText().toString());
@@ -266,28 +258,19 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 systemInventory.setDeviceModelNumber(modelNumber.getText().toString());
             systemInventory.setUserID(userID);
 
-            databaseReference.push().setValue(systemInventory, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+            databaseReference.push().setValue(systemInventory, (error, ref) -> {
 
-                    if (error==null)
-                    {
-                        setProgressDialogMessage(getResources().getString(R.string.saveComplete));
-                    }
-                    else
-                    {
-                        String errorString="Error: "+error.getMessage();
-                        setProgressDialogMessage(errorString);
-                    }
+                if (error == null) {
+                    setProgressDialogMessage(getResources().getString(R.string.saveComplete));
+                } else {
+                    String errorString = "Error: " + error.getMessage();
+                    setProgressDialogMessage(errorString);
                 }
             });
 
-        }
-
-      else if (unified && validationStatus)
-        {
+        } else if (unified && validationStatus) {
             setProgressDialogMessage(getResources().getString(R.string.saveStart));
-            SystemInventory systemInventory=new SystemInventory();
+            SystemInventory systemInventory = new SystemInventory();
             systemInventory.setCustomerName(customerName.getText().toString());
             systemInventory.setDataCenter(datacenterName.getText().toString());
             systemInventory.setRackName(rack.getText().toString());
@@ -304,26 +287,18 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 systemInventory.setDeviceModelNumber(modelNumber.getText().toString());
             systemInventory.setUserID(userID);
 
-            databaseReference.push().setValue(systemInventory, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+            databaseReference.push().setValue(systemInventory, (error, ref) -> {
 
-                    if (error==null)
-                    {
-                        setProgressDialogMessage(getResources().getString(R.string.saveComplete));
-                    }
-                    else
-                    {
-                        String errorString="Error: "+error.getMessage();
-                        setProgressDialogMessage(errorString);
-                    }
+                if (error == null) {
+                    setProgressDialogMessage(getResources().getString(R.string.saveComplete));
+                } else {
+                    String errorString = "Error: " + error.getMessage();
+                    setProgressDialogMessage(errorString);
                 }
             });
-        }
-      else if (computeIO && validationStatus)
-        {
+        } else if (computeIO && validationStatus) {
             setProgressDialogMessage(getResources().getString(R.string.saveStart));
-            SystemInventory systemInventory=new SystemInventory();
+            SystemInventory systemInventory = new SystemInventory();
             systemInventory.setCustomerName(customerName.getText().toString());
             systemInventory.setDataCenter(datacenterName.getText().toString());
             systemInventory.setRackName(rack.getText().toString());
@@ -339,28 +314,19 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 systemInventory.setDeviceModelNumber(modelNumber.getText().toString());
             systemInventory.setUserID(userID);
 
-            databaseReference.push().setValue(systemInventory, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+            databaseReference.push().setValue(systemInventory, (error, ref) -> {
 
-                    if (error==null)
-                    {
-                        setProgressDialogMessage(getResources().getString(R.string.saveComplete));
-                    }
-                    else
-                    {
-                        String errorString="Error: "+error.getMessage();
-                        setProgressDialogMessage(errorString);
-                    }
+                if (error == null) {
+                    setProgressDialogMessage(getResources().getString(R.string.saveComplete));
+                } else {
+                    String errorString = "Error: " + error.getMessage();
+                    setProgressDialogMessage(errorString);
                 }
             });
-        }
-
-      else if (nonCompute && validationStatus)
-        {
+        } else if (nonCompute && validationStatus) {
             setProgressDialogMessage(getResources().getString(R.string.saveStart));
-            rackLocation=getRackPosition(rackStart.getText().toString(),rackEnd.getText().toString());
-            SystemInventory systemInventory=new SystemInventory();
+            rackLocation = getRackPosition(rackStart.getText().toString(), rackEnd.getText().toString());
+            SystemInventory systemInventory = new SystemInventory();
             systemInventory.setCustomerName(customerName.getText().toString());
             systemInventory.setDataCenter(datacenterName.getText().toString());
             systemInventory.setRackName(rack.getText().toString());
@@ -373,31 +339,22 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 systemInventory.setDeviceModelNumber(modelNumber.getText().toString());
             systemInventory.setUserID(userID);
 
-            databaseReference.push().setValue(systemInventory, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+            databaseReference.push().setValue(systemInventory, (error, ref) -> {
 
-                    if (error==null)
-                    {
-                        setProgressDialogMessage(getResources().getString(R.string.saveComplete));
-                    }
-                    else
-                    {
-                        String errorString="Error: "+error.getMessage();
-                        setProgressDialogMessage(errorString);
-                    }
+                if (error == null) {
+                    setProgressDialogMessage(getResources().getString(R.string.saveComplete));
+                } else {
+                    String errorString = "Error: " + error.getMessage();
+                    setProgressDialogMessage(errorString);
                 }
             });
 
 
-        }
-      else
-        {
-            String message=getResources().getString(R.string.validationError);
+        } else {
+            String message = getResources().getString(R.string.validationError);
 
             setProgressDialogMessage(message);
         }
-
 
 
     }
@@ -405,16 +362,20 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if (v==saveButton)
-        {
+        if (v == saveButton) {
 
             saveData();
         }
+
+        if (v == captureButton) {
+
+            performOcrAndCopy();
+        }
+
     }
-    private void setProgressDialogMessage(String message)
-    {
-        if (progressDialog.isShowing())
-        {
+
+    private void setProgressDialogMessage(String message) {
+        if (progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
         progressDialog.setMessage(message);
@@ -422,38 +383,33 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         progressDialog.show();
         try {
 
-            Handler handler=new Handler();
+            Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     progressDialog.dismiss();
                 }
-            },3000);
+            }, 3000);
 
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private ArrayList<String> checkEmptyFields(ArrayList<EditText> editTexts, ArrayList<AutoCompleteTextView> textViews)
-    {
-        ArrayList<String> resultArrayList=new ArrayList<>();
-        ArrayList<String> strings=new ArrayList<>();
-        for (int index=0;index<editTexts.size();index++)
-        {
-            if(TextUtils.isEmpty(editTexts.get(index).getText().toString()))
-            {
+    private ArrayList<String> checkEmptyFields(ArrayList<EditText> editTexts, ArrayList<AutoCompleteTextView> textViews) {
+        ArrayList<String> resultArrayList = new ArrayList<>();
+        ArrayList<String> strings = new ArrayList<>();
+        for (int index = 0; index < editTexts.size(); index++) {
+            if (TextUtils.isEmpty(editTexts.get(index).getText().toString())) {
                 try {
-                    TextInputLayout inputLayout=(TextInputLayout)
+                    TextInputLayout inputLayout = (TextInputLayout)
                             getActivity().findViewById(editTexts.get(index).getId())
                                     .getParent()
                                     .getParent();
-                    String messages=inputLayout.getHint().toString();
+                    String messages = inputLayout.getHint().toString();
                     resultArrayList.add(messages);
-                }catch (NullPointerException s)
-                {
+                } catch (NullPointerException s) {
                     s.printStackTrace();
                 }
 
@@ -462,7 +418,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
 
         }
 
-        for (int index=0;index<textViews.size();index++) {
+        for (int index = 0; index < textViews.size(); index++) {
             if (TextUtils.isEmpty(textViews.get(index).getText().toString())) {
                 try {
                     TextInputLayout inputLayout = (TextInputLayout)
@@ -477,7 +433,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             }
         }
 
-        validationStatus= resultArrayList.size() == 0 && strings.size() == 0;
+        validationStatus = resultArrayList.size() == 0 && strings.size() == 0;
 
         resultArrayList.addAll(strings);
 
@@ -485,65 +441,52 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    private void showToast(String message)
-    {
-        Toast.makeText(getContext(),message, Toast.LENGTH_LONG).show();
+    private void showToast(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
-    private void fieldsValidation()
-    {
+    private void fieldsValidation() {
         ArrayList<EditText> requiredFields;
         ArrayList<AutoCompleteTextView> requiredSelections;
-        String toastMessage,message;
-        int scenario=0;
-        if (standalone)
-        {
-            scenario=1;
-        }
-        else if (chassis)
-        {
-            scenario=2;
-        }
-        else if (unified)
-        {
-            scenario=3;
-        }
-        else if (nonCompute)
-        {
-            scenario=4;
-        }
-        else if (computeIO)
-        {
-            scenario=5;
+        String toastMessage, message;
+        int scenario = 0;
+        if (standalone) {
+            scenario = 1;
+        } else if (chassis) {
+            scenario = 2;
+        } else if (unified) {
+            scenario = 3;
+        } else if (nonCompute) {
+            scenario = 4;
+        } else if (computeIO) {
+            scenario = 5;
         }
 
-        switch (scenario)
-        {
+        switch (scenario) {
 
             case 1:
-               requiredFields=new ArrayList<>();
-               requiredSelections=new ArrayList<>();
-               requiredSelections.add(deviceType);
-               requiredSelections.add(vendors);
-               requiredSelections.add(formFactor);
-               requiredFields.add(customerName);
-               requiredFields.add(datacenterName);
-               requiredFields.add(rack);
-               requiredFields.add(serialNumber);
-               requiredFields.add(deviceModel);
-               //check rack position
-               if (typeNumber)
-                   requiredFields.add(modelNumber);
-              message=prepareMessages(checkEmptyFields(requiredFields,requiredSelections),true);
-              if (!TextUtils.isEmpty(message))
-              {
-                  toastMessage=message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
-                  showToast(toastMessage);
-              }
+                requiredFields = new ArrayList<>();
+                requiredSelections = new ArrayList<>();
+                requiredSelections.add(deviceType);
+                requiredSelections.add(vendors);
+                requiredSelections.add(formFactor);
+                requiredFields.add(customerName);
+                requiredFields.add(datacenterName);
+                requiredFields.add(rack);
+                requiredFields.add(serialNumber);
+                requiredFields.add(deviceModel);
+                //check rack position
+                if (typeNumber)
+                    requiredFields.add(modelNumber);
+                message = prepareMessages(checkEmptyFields(requiredFields, requiredSelections), true);
+                if (!TextUtils.isEmpty(message)) {
+                    toastMessage = message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
+                    showToast(toastMessage);
+                }
                 break;
             case 2:
-                requiredFields=new ArrayList<>();
-                requiredSelections=new ArrayList<>();
+                requiredFields = new ArrayList<>();
+                requiredSelections = new ArrayList<>();
                 requiredSelections.add(deviceType);
                 requiredSelections.add(vendors);
                 requiredFields.add(customerName);
@@ -553,16 +496,15 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 requiredFields.add(enclosureSn);
                 if (typeNumber)
                     requiredFields.add(modelNumber);
-                message=prepareMessages(checkEmptyFields(requiredFields,requiredSelections  ),true);
-                if (!TextUtils.isEmpty(message))
-                {
-                    toastMessage=message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
+                message = prepareMessages(checkEmptyFields(requiredFields, requiredSelections), true);
+                if (!TextUtils.isEmpty(message)) {
+                    toastMessage = message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
                     showToast(toastMessage);
                 }
                 break;
             case 3:
-                requiredFields=new ArrayList<>();
-                requiredSelections=new ArrayList<>();
+                requiredFields = new ArrayList<>();
+                requiredSelections = new ArrayList<>();
                 requiredSelections.add(deviceType);
                 requiredSelections.add(vendors);
                 requiredSelections.add(formFactor);
@@ -575,16 +517,15 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 requiredFields.add(enclosureSn);
                 if (typeNumber)
                     requiredFields.add(modelNumber);
-                message=prepareMessages(checkEmptyFields(requiredFields,requiredSelections),false);
-                if (!TextUtils.isEmpty(message))
-                {
-                    toastMessage=message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
+                message = prepareMessages(checkEmptyFields(requiredFields, requiredSelections), false);
+                if (!TextUtils.isEmpty(message)) {
+                    toastMessage = message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
                     showToast(toastMessage);
                 }
                 break;
             case 4:
-                requiredFields=new ArrayList<>();
-                requiredSelections=new ArrayList<>();
+                requiredFields = new ArrayList<>();
+                requiredSelections = new ArrayList<>();
                 requiredSelections.add(deviceType);
                 requiredSelections.add(vendors);
                 requiredFields.add(customerName);
@@ -594,16 +535,15 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 requiredFields.add(deviceModel);
                 if (typeNumber)
                     requiredFields.add(modelNumber);
-                message=prepareMessages(checkEmptyFields(requiredFields,requiredSelections),true);
-                if (!TextUtils.isEmpty(message))
-                {
-                    toastMessage=message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
+                message = prepareMessages(checkEmptyFields(requiredFields, requiredSelections), true);
+                if (!TextUtils.isEmpty(message)) {
+                    toastMessage = message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
                     showToast(toastMessage);
                 }
                 break;
             case 5:
-                requiredFields=new ArrayList<>();
-                requiredSelections=new ArrayList<>();
+                requiredFields = new ArrayList<>();
+                requiredSelections = new ArrayList<>();
                 requiredSelections.add(deviceType);
                 requiredSelections.add(vendors);
                 requiredFields.add(customerName);
@@ -615,10 +555,9 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 requiredFields.add(deviceModel);
                 if (typeNumber)
                     requiredFields.add(modelNumber);
-                message=prepareMessages(checkEmptyFields(requiredFields,requiredSelections),true);
-                if (!TextUtils.isEmpty(message))
-                {
-                    toastMessage=message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
+                message = prepareMessages(checkEmptyFields(requiredFields, requiredSelections), true);
+                if (!TextUtils.isEmpty(message)) {
+                    toastMessage = message.concat(" ").concat(getResources().getString(R.string.emptyLabel));
                     showToast(toastMessage);
                 }
                 break;
@@ -627,30 +566,64 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private String prepareMessages(ArrayList<String> strings,boolean rackPositionRequired)
-    {
-        String message=getResources().getString(R.string.emptyString);
-        StringBuilder tempString=new StringBuilder();
-        for (int stringIndex=0;stringIndex<strings.size();stringIndex++)
-        {
+    private String prepareMessages(ArrayList<String> strings, boolean rackPositionRequired) {
+        String message = getResources().getString(R.string.emptyString);
+        StringBuilder tempString = new StringBuilder();
+        for (int stringIndex = 0; stringIndex < strings.size(); stringIndex++) {
             tempString.append(strings.get(stringIndex)).append(", ");
         }
 
-        if (rackPositionRequired)
-        {
+        if (rackPositionRequired) {
             //check if empty
-            if (TextUtils.isEmpty(rackStart.getText().toString())|| TextUtils.isEmpty(rackEnd.getText().toString()))
-            {
+            if (TextUtils.isEmpty(rackStart.getText().toString()) || TextUtils.isEmpty(rackEnd.getText().toString())) {
                 tempString.append(getResources().getString(R.string.rack_position));
             }
 
         }
 
-        message=tempString.toString();
+        message = tempString.toString();
 
         return message;
     }
 
+    private void performOcrAndCopy() {
+
+        ocrLauncher.launch(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (bitmap != null) {
+            recognizeText(bitmap);
+        } else {
+            Toast.makeText(getContext(), R.string.imageIssue, Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+    private void recognizeText(Bitmap bitmapImage) {
+        TextRecognizer textRecognizer = new TextRecognizer.Builder(getContext()).build();
+        if (!textRecognizer.isOperational()) {
+            Toast.makeText(getActivity(), R.string.error, Toast.LENGTH_LONG).show();
+        } else {
+            Frame frame = new Frame.Builder().setBitmap(bitmapImage).build();
+            SparseArray<TextBlock> textBlockSparseArray = textRecognizer.detect(frame);
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int index = 0; index < textBlockSparseArray.size(); index++) {
+                TextBlock textBlock = textBlockSparseArray.valueAt(index);
+                stringBuilder.append(textBlock.getValue());
+                stringBuilder.append("\n");
+
+            }
+            copyToClipboard(stringBuilder.toString());
+
+        }
+    }
+
+    private void copyToClipboard(String text) {
+        ClipboardManager clipboardManager;
+        clipboardManager = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("clipboard data", text);
+        clipboardManager.setPrimaryClip(clipData);
+
+    }
 
 
 }
