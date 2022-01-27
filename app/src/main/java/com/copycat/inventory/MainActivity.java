@@ -1,11 +1,19 @@
 package com.copycat.inventory;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.SparseArray;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
@@ -14,9 +22,14 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.copycat.inventory.databinding.ActivityMainBinding;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.theartofdev.edmodo.cropper.CropImage;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,4 +93,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+
+                Uri resultUri = result.getUri();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                    recognizeText(bitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+    private void recognizeText(Bitmap bitmapImage) {
+        TextRecognizer textRecognizer = new TextRecognizer.Builder(MainActivity.this).build();
+        if (!textRecognizer.isOperational()) {
+            Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_LONG).show();
+        } else {
+            Frame frame = new Frame.Builder().setBitmap(bitmapImage).build();
+            SparseArray<TextBlock> textBlockSparseArray = textRecognizer.detect(frame);
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int index = 0; index < textBlockSparseArray.size(); index++) {
+                TextBlock textBlock = textBlockSparseArray.valueAt(index);
+                stringBuilder.append(textBlock.getValue());
+                stringBuilder.append("\n");
+
+            }
+            Toast.makeText(this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
+            copyToClipboard(stringBuilder.toString());
+
+        }
+    }
+
+    private void copyToClipboard(String text) {
+        ClipboardManager clipboardManager;
+        clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("Copied data", text);
+        clipboardManager.setPrimaryClip(clipData);
+
+
+    }
 }

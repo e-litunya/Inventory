@@ -82,7 +82,7 @@ public class LauncherActivity extends AppCompatActivity {
         RotateAnimation rotateAnimation=new RotateAnimation(0.0f,360f);
         long DELAY = 1000L;
         rotateAnimation.setDuration(DELAY);
-        int COUNT = 3;
+        int COUNT = 5;
         rotateAnimation.setRepeatCount(COUNT);
         rotateAnimation.setRepeatMode(Animation.REVERSE);
         circleImageView.setAnimation(rotateAnimation);

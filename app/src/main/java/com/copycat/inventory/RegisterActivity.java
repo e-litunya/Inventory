@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -196,8 +197,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                 @Override
                                 public void run() {
                                     progressDialog.dismiss();
+                                    launchSignIn();
+
                                 }
-                            },2500);
+                            },10000);
 
                         }
                     }
@@ -214,5 +217,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         progressDialog.setMessage(message);
         progressDialog.setCancelable(true);
         progressDialog.show();
+    }
+
+    private void launchSignIn()
+    {
+        Intent intent=new Intent(this,SignInActivity.class);
+        startActivity(intent);
     }
 }

@@ -1,16 +1,9 @@
 package com.copycat.inventory.ui.entry;
 
 import android.app.ProgressDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +13,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.ActivityResultRegistry;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -31,19 +21,15 @@ import androidx.lifecycle.ViewModelProvider;
 import com.copycat.inventory.MainActivity;
 import com.copycat.inventory.R;
 import com.copycat.inventory.SystemInventory;
-import com.copycat.inventory.TakeImage;
 import com.copycat.inventory.databinding.FragmentEntryBinding;
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.text.TextBlock;
-import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class EntryFragment extends Fragment implements View.OnClickListener {
 
@@ -51,24 +37,8 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
     private AutoCompleteTextView vendors, deviceType, formFactor;
     private volatile boolean unified, standalone, typeNumber, chassis, validationStatus;
     private String deviceVendor;
-    private Bitmap bitmap;
-    private ActivityResultRegistry registry;
     private String deviceForm;
     private String device;
-    private final ActivityResultLauncher<String> ocrLauncher = registerForActivityResult(new TakeImage(), Objects.requireNonNull(registry), new ActivityResultCallback<Uri>() {
-        @Override
-        public void onActivityResult(Uri result) {
-            if (result != null) {
-                try {
-                    bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), result);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-    });
-
     private EditText customerName, datacenterName, rack, enclosureSn, enclosureModel, deviceSlot, serialNumber, rackStart, rackEnd, deviceModel, modelNumber;
     private FloatingActionButton captureButton;
     private ImageButton saveButton;
@@ -369,7 +339,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
 
         if (v == captureButton) {
 
-            performOcrAndCopy();
+            CropImage.activity().setGuidelines(CropImageView.Guidelines.ON).start(getActivity());
         }
 
     }
@@ -586,44 +556,9 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         return message;
     }
 
-    private void performOcrAndCopy() {
-
-        ocrLauncher.launch(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (bitmap != null) {
-            recognizeText(bitmap);
-        } else {
-            Toast.makeText(getContext(), R.string.imageIssue, Toast.LENGTH_LONG).show();
-        }
 
 
-    }
 
-    private void recognizeText(Bitmap bitmapImage) {
-        TextRecognizer textRecognizer = new TextRecognizer.Builder(getContext()).build();
-        if (!textRecognizer.isOperational()) {
-            Toast.makeText(getActivity(), R.string.error, Toast.LENGTH_LONG).show();
-        } else {
-            Frame frame = new Frame.Builder().setBitmap(bitmapImage).build();
-            SparseArray<TextBlock> textBlockSparseArray = textRecognizer.detect(frame);
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int index = 0; index < textBlockSparseArray.size(); index++) {
-                TextBlock textBlock = textBlockSparseArray.valueAt(index);
-                stringBuilder.append(textBlock.getValue());
-                stringBuilder.append("\n");
-
-            }
-            copyToClipboard(stringBuilder.toString());
-
-        }
-    }
-
-    private void copyToClipboard(String text) {
-        ClipboardManager clipboardManager;
-        clipboardManager = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText("clipboard data", text);
-        clipboardManager.setPrimaryClip(clipData);
-
-    }
 
 
 }
