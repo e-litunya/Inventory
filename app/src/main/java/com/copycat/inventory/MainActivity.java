@@ -126,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
                 stringBuilder.append("\n");
 
             }
-            Toast.makeText(this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
             copyToClipboard(stringBuilder.toString());
 
         }
