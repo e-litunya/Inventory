@@ -60,6 +60,7 @@
     </string-array>
     <string name="title_activity_launcher">CCL DC Inventory</string>
     <string name="dummy_button">Dummy Button</string>
+    <string name="exportReport">EXPORT REPORT</string>
     <string name="country">KE</string>
     <!-- Strings used for fragments for navigation -->
 

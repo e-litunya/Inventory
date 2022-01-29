@@ -1,8 +1,5 @@
 package com.copycat.inventory;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +12,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private EditText email,password;
+    private EditText email, password;
     private TextView passwordReset;
     private Button signIn;
     private FirebaseAuth firebaseAuth;
@@ -48,20 +48,20 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        myPrefs=getSharedPreferences(Constants.LOCALDB,MODE_PRIVATE);
-        email=findViewById(R.id.sign_userEmail);
-        password=findViewById(R.id.sign_userPassword);
-        passwordReset=findViewById(R.id.pass_reset);
-        signIn=findViewById(R.id.btn_SignON);
+        myPrefs = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
+        email = findViewById(R.id.sign_userEmail);
+        password = findViewById(R.id.sign_userPassword);
+        passwordReset = findViewById(R.id.pass_reset);
+        signIn = findViewById(R.id.btn_SignON);
         signIn.setOnClickListener(this);
         passwordReset.setOnClickListener(this);
-        Linkify.addLinks(passwordReset,Linkify.WEB_URLS);
-        firebaseAuth=FirebaseAuth.getInstance();
+        Linkify.addLinks(passwordReset, Linkify.WEB_URLS);
+        firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setTitle(R.string.AppName);
-        mVerificationCallbacks= new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        mVerificationCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
 
@@ -78,8 +78,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                 super.onCodeSent(s, forceResendingToken);
 
-                mResendToken=forceResendingToken;
-                mVerificationID=s;
+                mResendToken = forceResendingToken;
+                mVerificationID = s;
             }
         };
     }
@@ -87,31 +87,20 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
 
-        if (v==signIn)
-        {
-           if(TextUtils.isEmpty(password.getText()) || TextUtils.isEmpty(email.getText()))
-           {
-               Toast.makeText(this,getString(R.string.emailPassEmpty),Toast.LENGTH_LONG).show();
-           }
-           else
-           {
-               try {
-                   signInWithPassword(email.getText().toString(),password.getText().toString());
-               }catch (Exception s)
-               {
-                   s.printStackTrace();
-               }
-           }
-        }
-
-        else if (v==passwordReset)
-        {
-            if (TextUtils.isEmpty(email.getText()))
-            {
-                Toast.makeText(this,getString(R.string.emailEmpty),Toast.LENGTH_LONG).show();
+        if (v == signIn) {
+            if (TextUtils.isEmpty(password.getText()) || TextUtils.isEmpty(email.getText())) {
+                Toast.makeText(this, getString(R.string.emailPassEmpty), Toast.LENGTH_LONG).show();
+            } else {
+                try {
+                    signInWithPassword(email.getText().toString(), password.getText().toString());
+                } catch (Exception s) {
+                    s.printStackTrace();
+                }
             }
-            else
-            {
+        } else if (v == passwordReset) {
+            if (TextUtils.isEmpty(email.getText())) {
+                Toast.makeText(this, getString(R.string.emailEmpty), Toast.LENGTH_LONG).show();
+            } else {
                 resetPassword(email.getText().toString());
             }
         }
@@ -119,42 +108,34 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
 
-
-    private void signInWithPassword(String userEmail,String userPassword) throws Exception
-    {
-        setProgressDialogMessage(getString(R.string.passwordSignIn),false);
-        if(firebaseAuth==null)
-        {
-            firebaseAuth=FirebaseAuth.getInstance();
-        }
-        else
-        {
+    private void signInWithPassword(String userEmail, String userPassword) throws Exception {
+        setProgressDialogMessage(getString(R.string.passwordSignIn), false);
+        if (firebaseAuth == null) {
+            firebaseAuth = FirebaseAuth.getInstance();
+        } else {
             // proceed with signIn
 
-            firebaseAuth.signInWithEmailAndPassword(userEmail,userPassword)
+            firebaseAuth.signInWithEmailAndPassword(userEmail, userPassword)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful())
-                            {
-                                FirebaseUser user=firebaseAuth.getCurrentUser();
-                                setProgressDialogMessage(getString(R.string.logOncomplete),false);
-                                Handler handler=new Handler();
+                            if (task.isSuccessful()) {
+                                FirebaseUser user = firebaseAuth.getCurrentUser();
+                                setProgressDialogMessage(getString(R.string.logOncomplete), false);
+                                Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         progressDialog.dismiss();
                                         launchInventory(user);
                                     }
-                                },3000);
+                                }, 3000);
 
-                            }
-                            else
-                            {
+                            } else {
 
-                                String phoneNumber=myPrefs.getString(Constants.PHONE_NUMBER, Constants.DEF_PHONE);
+                                String phoneNumber = myPrefs.getString(Constants.PHONE_NUMBER, Constants.DEF_PHONE);
                                 //notify progress text
-                                setProgressDialogMessage(getString(R.string.phoneSignIn),false);
+                                setProgressDialogMessage(getString(R.string.phoneSignIn), false);
                                 verifyPhoneNumber(phoneNumber);
                             }
 
@@ -163,58 +144,49 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     }).addOnFailureListener(this, new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    if ( e instanceof FirebaseAuthInvalidCredentialsException)
-                    {
-                        setProgressDialogMessage(getString(R.string.invalidPassword),true);
-                    }
-                    else if (e instanceof FirebaseAuthInvalidUserException)
-                    {
-                        setProgressDialogMessage(getString(R.string.invalidEmail),true);
-                    }
-                    else
-                    {
-                        setProgressDialogMessage(e.getMessage(),true);
+                    if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                        setProgressDialogMessage(getString(R.string.invalidPassword), true);
+                    } else if (e instanceof FirebaseAuthInvalidUserException) {
+                        setProgressDialogMessage(getString(R.string.invalidEmail), true);
+                    } else {
+                        setProgressDialogMessage(e.getMessage(), true);
                     }
                 }
             });
         }
     }
 
-    private void launchInventory(FirebaseUser user)
-    {
+    private void launchInventory(FirebaseUser user) {
 
-        Intent mainIntent=new Intent(this,MainActivity.class);
-        mainIntent.putExtra(Constants.USER,user.getEmail());
-        mainIntent.putExtra(Constants.USERID,user);
+        Intent mainIntent = new Intent(this, MainActivity.class);
+        mainIntent.putExtra(Constants.USER, user.getEmail());
+        mainIntent.putExtra(Constants.USERID, user);
         startActivity(mainIntent);
     }
 
-    private void signInwithPhoneNumber(PhoneAuthCredential authCredential)
-    {
-       firebaseAuth.signInWithCredential(authCredential)
-               .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                   @Override
-                   public void onComplete(@NonNull Task<AuthResult> task) {
-                       if(task.isSuccessful())
-                       {
-                           FirebaseUser user=firebaseAuth.getCurrentUser();
-                          setProgressDialogMessage(getString(R.string.logOncomplete),false);
-                           Handler handler = new Handler();
-                           handler.postDelayed(new Runnable() {
-                               @Override
-                               public void run() {
-                                  progressDialog.dismiss();
-                                  launchInventory(user);
-                               }
-                           },3000);
-                       }
-                   }
-               });
+    private void signInwithPhoneNumber(PhoneAuthCredential authCredential) {
+        firebaseAuth.signInWithCredential(authCredential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                            setProgressDialogMessage(getString(R.string.logOncomplete), false);
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressDialog.dismiss();
+                                    launchInventory(user);
+                                }
+                            }, 3000);
+                        }
+                    }
+                });
     }
 
-    private void verifyPhoneNumber (String phoneNumber)
-    {
-        PhoneAuthOptions authOptions=
+    private void verifyPhoneNumber(String phoneNumber) {
+        PhoneAuthOptions authOptions =
                 PhoneAuthOptions.newBuilder(firebaseAuth)
                         .setPhoneNumber(phoneNumber)
                         .setTimeout(60L, TimeUnit.SECONDS)
@@ -223,21 +195,18 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                         .build();
         PhoneAuthProvider.verifyPhoneNumber(authOptions);
     }
-    private void resetPassword(String emailID)
-    {
-        setProgressDialogMessage(getString(R.string.resetPassword),false);
-        if (firebaseAuth==null)
-        {
-            firebaseAuth=FirebaseAuth.getInstance();
-        }
-        else {
+
+    private void resetPassword(String emailID) {
+        setProgressDialogMessage(getString(R.string.resetPassword), false);
+        if (firebaseAuth == null) {
+            firebaseAuth = FirebaseAuth.getInstance();
+        } else {
             firebaseAuth.sendPasswordResetEmail(emailID)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful())
-                            {
-                               setProgressDialogMessage(getString(R.string.checkEmail),true);
+                            if (task.isSuccessful()) {
+                                setProgressDialogMessage(getString(R.string.checkEmail), true);
 
                             }
                         }
@@ -245,25 +214,22 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void setProgressDialogMessage(String message,boolean timed)
-    {
-        if (progressDialog.isShowing())
-        {
+    private void setProgressDialogMessage(String message, boolean timed) {
+        if (progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
         progressDialog.setMessage(message);
         progressDialog.setCancelable(true);
         progressDialog.show();
 
-        if (timed)
-        {
-            Handler handler=new Handler();
+        if (timed) {
+            Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     progressDialog.dismiss();
                 }
-            },3000);
+            }, 3000);
         }
     }
 

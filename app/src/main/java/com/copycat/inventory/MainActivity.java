@@ -100,7 +100,10 @@ public class MainActivity extends AppCompatActivity {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
 
-                Uri resultUri = result.getUri();
+                Uri resultUri = null;
+                if (result != null) {
+                    resultUri = result.getUri();
+                }
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
                     recognizeText(bitmap);

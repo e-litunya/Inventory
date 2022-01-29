@@ -557,8 +557,4 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
-
-
-
 }
