@@ -130,7 +130,6 @@
                 android:hint="@string/device_vendor"
                 android:inputType="none"
                 tools:ignore="TextContrastCheck" />
-
         </com.google.android.material.textfield.TextInputLayout>
 
     </TableRow>
@@ -164,14 +163,16 @@
             android:id="@+id/enclosure_type"
             android:hint="@string/enclosure_model"
             android:padding="@dimen/table_row_padding_small">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/enclosure_model"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/enclosure_model"
-                android:textColorHint="@color/primaryLightColor"
                 android:inputType="textCapWords"
                 android:textColor="@color/primaryTextColor"
-                tools:ignore="TextContrastCheck"/>
+                android:textColorHint="@color/primaryLightColor"
+                tools:ignore="TextContrastCheck" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -195,7 +196,7 @@
                 android:id="@+id/chassis_slot"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textCapWords"
+                android:inputType="number"
                 android:textColor="@color/primaryTextColor"
                 android:textColorHint="@color/primaryLightColor"
                 tools:ignore="TextContrastCheck" />
@@ -325,7 +326,7 @@
             android:contentDescription="@string/save"
             android:id="@+id/saveButton"
             android:src="@mipmap/outline_save_white_48"
-            android:background="@color/primaryDarkColor"
+            android:background="@color/secondaryDarkColor"
             />
     </TableRow>
 
@@ -337,8 +338,8 @@
             android:layout_gravity="bottom|end"
             android:contentDescription="@string/capture"
             android:layout_margin="@dimen/table_row_padding"
-            
-            android:src="@drawable/ic_baseline_camera_48"
+            app:backgroundTint="@color/secondaryLightColor"
+            android:src="@drawable/ic_baseline_filter_center_focus_48"
             app:fabSize="normal" />
 
 </LinearLayout>

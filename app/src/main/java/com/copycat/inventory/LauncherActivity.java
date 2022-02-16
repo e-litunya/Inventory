@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.copycat.inventory.databinding.ActivityLauncherBinding;
 
+import java.util.Objects;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -30,6 +32,10 @@ public class LauncherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         com.copycat.inventory.databinding.ActivityLauncherBinding binding = ActivityLauncherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        if (getSupportActionBar()!=null)
+        {
+            getSupportActionBar().hide();
+        }
         sharedPreferences = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
         animText = binding.getRoot().findViewById(R.id.animText);
         circleImageView = binding.getRoot().findViewById(R.id.logo);

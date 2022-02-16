@@ -10,9 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/productDetails"
-        android:padding="@dimen/table_row_padding_small"
-        app:cardCornerRadius="6dp"
-        android:elevation="8dp">
+        android:scrollbars="vertical"
+        app:cardCornerRadius="20dp"
+        android:elevation="4dp">
 
         <TableLayout
             android:layout_width="match_parent"
@@ -243,7 +243,7 @@
                     android:layout_weight="1"
                     android:id="@+id/vendorLabel"
                     android:textStyle="bold|normal"
-                    android:text="@string/system_product"
+                    android:text="@string/system_machine_product"
                     />
                 <TextView
                     android:layout_width="0dp"
@@ -251,7 +251,7 @@
                     android:textSize="16sp"
                     android:id="@+id/report_modelNumber"
                     android:layout_weight="1"
-                    android:text="@string/system_product"
+                    android:text="@string/system_machine_product"
                     />
             </TableRow>
 

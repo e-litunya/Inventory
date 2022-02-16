@@ -34,9 +34,8 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     public static String userID;
-
+    public static String[] listedCustomers;
     private FirebaseAuth firebaseAuth;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +54,17 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
         Intent intent = getIntent();
         userID = intent.getStringExtra(Constants.USER);
+        listedCustomers = intent.getStringArrayExtra(Constants.CUSTOMER_lABEL);
 
-        if (!checkPermission()) {
-            askPermission();
+
+        if (!checkCameraPermission()) {
+            askCameraPermission();
         }
 
+        if (!checkStoragePermission())
+        {
+            askStoragePermission();
+        }
         firebaseAuth = FirebaseAuth.getInstance();
 
     }
@@ -77,21 +82,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private boolean checkPermission() {
-        boolean result;
+    private boolean checkCameraPermission() {
+        boolean result=false;
+        result=ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED;
 
-        result = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
 
         return result;
     }
 
-    private void askPermission() {
-        int CAMERA_PER_CODE = 150;
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PER_CODE);
+    private void askCameraPermission() {
+        int CAMERA_STORAGE_PER_CODE = 150;
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_STORAGE_PER_CODE);
 
 
     }
 
+    private boolean checkStoragePermission() {
+        boolean result=false;
+        result=ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
+
+
+        return result;
+    }
+
+    private void askStoragePermission() {
+        int CAMERA_STORAGE_PER_CODE = 180;
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_STORAGE_PER_CODE);
+
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -142,4 +161,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
 }

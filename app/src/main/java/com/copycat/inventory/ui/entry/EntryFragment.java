@@ -30,6 +30,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class EntryFragment extends Fragment implements View.OnClickListener {
 
@@ -199,7 +200,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             rackLocation = getRackPosition(rackStart.getText().toString(), rackEnd.getText().toString());
             SystemInventory systemInventory = new SystemInventory(customerName.getText().toString(),
                     datacenterName.getText().toString(), rack.getText().toString(), device, deviceForm, deviceVendor,
-                    serialNumber.getText().toString(), rackLocation, deviceModel.getText().toString(),
+                    serialNumber.getText().toString().trim().toUpperCase(Locale.ROOT), rackLocation, deviceModel.getText().toString(),
                     modelNumber.getText().toString(), userID);
             databaseReference.push().setValue(systemInventory, (error, ref) -> {
 
@@ -220,7 +221,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             systemInventory.setDeviceType(device);
             systemInventory.setDeviceFormFactor(deviceForm);
             systemInventory.setDeviceManufacturer(deviceVendor);
-            systemInventory.setDeviceSerial(enclosureSn.getText().toString());
+            systemInventory.setDeviceSerial(enclosureSn.getText().toString().trim().toUpperCase(Locale.ROOT));
             systemInventory.setChassisSerial(enclosureSn.getText().toString());
             systemInventory.setChassisModel(enclosureModel.getText().toString());
             systemInventory.setRackPosition(rackLocation);
@@ -249,9 +250,8 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             systemInventory.setDeviceManufacturer(deviceVendor);
             systemInventory.setChassisSerial(enclosureSn.getText().toString());
             systemInventory.setChassisModel(enclosureModel.getText().toString());
-            int slot = Integer.parseInt(deviceSlot.getText().toString());
-            systemInventory.setServerSlot(slot);
-            systemInventory.setDeviceSerial(serialNumber.getText().toString());
+            systemInventory.setServerSlot(Long.parseLong(deviceSlot.getText().toString()));
+            systemInventory.setDeviceSerial(serialNumber.getText().toString().toUpperCase(Locale.ROOT).trim());
             systemInventory.setDeviceModel(deviceModel.getText().toString());
             if (typeNumber)
                 systemInventory.setDeviceModelNumber(modelNumber.getText().toString());
@@ -276,9 +276,8 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             systemInventory.setDeviceManufacturer(deviceVendor);
             systemInventory.setChassisSerial(enclosureSn.getText().toString());
             systemInventory.setChassisModel(enclosureModel.getText().toString());
-            int slot = Integer.parseInt(deviceSlot.getText().toString());
-            systemInventory.setServerSlot(slot);
-            systemInventory.setDeviceSerial(serialNumber.getText().toString());
+            systemInventory.setServerSlot(Long.parseLong(deviceSlot.getText().toString()));
+            systemInventory.setDeviceSerial(serialNumber.getText().toString().toUpperCase(Locale.ROOT).trim());
             systemInventory.setDeviceModel(deviceModel.getText().toString());
             if (typeNumber)
                 systemInventory.setDeviceModelNumber(modelNumber.getText().toString());
@@ -302,7 +301,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             systemInventory.setRackName(rack.getText().toString());
             systemInventory.setDeviceType(device);
             systemInventory.setDeviceManufacturer(deviceVendor);
-            systemInventory.setDeviceSerial(serialNumber.getText().toString());
+            systemInventory.setDeviceSerial(serialNumber.getText().toString().trim().toUpperCase(Locale.ROOT));
             systemInventory.setDeviceModel(deviceModel.getText().toString());
             systemInventory.setRackPosition(rackLocation);
             if (typeNumber)

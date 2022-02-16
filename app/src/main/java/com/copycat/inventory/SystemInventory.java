@@ -25,7 +25,7 @@ public class SystemInventory {
     @PropertyName("Chassis Model")
     public String chassisModel;
     @PropertyName("Device Slot")
-    public int serverSlot;
+    public long serverSlot;
     @PropertyName("Device Serial Number")
     public String deviceSerial;
     @PropertyName("Rack Unit")
@@ -51,7 +51,7 @@ public class SystemInventory {
         this.userID = user;
     }
 
-    public SystemInventory(String customerName, String dataCenter, String rackName, String deviceType, String deviceFormFactor, String deviceManufacturer, String chassisSerial, String chassisModel, int serverSlot, String deviceSerial, String deviceModel, @Nullable String deviceModelNumber, String user) {
+    public SystemInventory(String customerName, String dataCenter, String rackName, String deviceType, String deviceFormFactor, String deviceManufacturer, String chassisSerial, String chassisModel, String serverSlot, String deviceSerial, String deviceModel, @Nullable String deviceModelNumber, String user) {
 
         //unified infrastructure
         this.customerName = customerName;
@@ -63,7 +63,7 @@ public class SystemInventory {
         this.chassisSerial = chassisSerial;
         this.userID = user;
         this.chassisModel = chassisModel;
-        this.serverSlot = serverSlot;
+        this.serverSlot = Long.parseLong(serverSlot);
         this.deviceSerial = deviceSerial;
         this.deviceModel = deviceModel;
         this.deviceModelNumber = deviceModelNumber;
@@ -169,12 +169,12 @@ public class SystemInventory {
     }
 
     @Exclude
-    public int getServerSlot() {
+    public long getServerSlot() {
         return serverSlot;
     }
 
     @Exclude
-    public void setServerSlot(int serverSlot) {
+    public void setServerSlot(long serverSlot) {
         this.serverSlot = serverSlot;
     }
 

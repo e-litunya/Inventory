@@ -8,4 +8,7 @@ public class Constants {
     public static final String USER = "UserEmail";
     public static final String DEF_PHONE ="+254123456789";
     public static final String USERID ="UserUUID";
+    public static final String CUSTOMER_NAMES="Customer Name";
+    public static final String CUSTOMER_lABEL="Customers";
+    public static final String FOLDER ="dir";
 }

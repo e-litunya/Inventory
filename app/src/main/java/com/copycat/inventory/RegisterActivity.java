@@ -15,9 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.hbb20.CountryCodePicker;
 
@@ -155,7 +157,28 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
                         }
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof FirebaseAuthUserCollisionException)
+                {
+                    setProgressDialogMessage(getString(R.string.emailExists));
+                    Handler handler=new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            String phoneNumber = countryCodePicker.getFullNumberWithPlus();
+                            editor.putString(Constants.PHONE_NUMBER, phoneNumber);
+                            editor.putBoolean(Constants.SIGNUP, true);
+                            editor.apply();
+                            launchSignIn();
+
+                        }
+                    },3000);
+                }
+            }
+        });
     }
 
     private void sendEmailVerification(FirebaseUser newUser) {

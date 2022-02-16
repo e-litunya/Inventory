@@ -2,14 +2,14 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="false">
         <shape android:shape="rectangle">
-            <solid android:color="@color/purple_700" />
+            <solid android:color="@color/secondaryDarkColor" />
             <stroke android:width="5px" android:color="#0000ff" android:dashGap="3dp" android:dashWidth="3dp" />
         </shape>
     </item>
     <!-- Pressed state -->
     <item android:state_pressed="true" >
         <shape  android:shape="rectangle">
-            <solid android:color="@color/purple_500" />
+            <solid android:color="@color/secondaryLightColor" />
             <stroke android:width="5px" android:color="#0000ff" android:dashGap="5dp" android:dashWidth="5dp" />
         </shape>
     </item>

@@ -9,7 +9,7 @@
     <string name="system_type">Device Type</string>
     <string name="form_factor">Form Factor</string>
     <string name="rack_position">Rack Position RU</string>
-    <string name="system_model">Product Model</string>
+    <string name="system_model">Device Model</string>
     <string name="system_serial">Serial Number</string>
     <string name="system_product">Product Number</string>
     <string name="save">Save</string>
@@ -56,6 +56,9 @@
         <item>Veritas</item>
         <item>Gigabyte</item>
         <item>Oracle</item>
+        <item>Brocade</item>
+        <item>Fortinet</item>
+        <item>Meraki</item>
 
     </string-array>
     <string name="title_activity_launcher">CCL DC Inventory</string>
@@ -98,4 +101,17 @@
     <string name="error">Error in running OCR</string>
     <string name="clipboard">clipboard data</string>
     <string name="imageIssue">Issue with camera image</string>
+    <string name="inventoryLoad">"Fetching DC inventory for "</string>
+    <string name="system_machine_product">Product/Machine Number</string>
+    <string name="dbError">"Encountered database error: "</string>
+    <string name="customer_missing">You must select customer first</string>
+    <string name="inventoryFail">Could not fetch inventory for</string>
+    <string name="emptySheet">Sheet1</string>
+    <string name="emailExists">An account exists with the entered email address</string>
+    <string name="passwordless">PASSWORDLESS SIGN IN</string>
+    <string name="phoneSign">Signing in with phone number...</string>
+    <string name="codeSent">Verification code sent...</string>
+    <string name="directory">DC Inventory</string>
+    <string name="internalStore">Unable to create folder in internal storage</string>
+    <string name="saved">"Created "</string>
 </resources>

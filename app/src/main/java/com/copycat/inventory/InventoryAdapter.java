@@ -9,14 +9,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.ViewHolder> {
 
-    private List<InventoryData> inventoryData;
+    private ArrayList<InventoryData> inventoryData;
     private  Context context;
 
-    public InventoryAdapter(List<InventoryData> inventoryData, Context context) {
+    public InventoryAdapter(ArrayList<InventoryData> inventoryData, Context context) {
         this.inventoryData = inventoryData;
         this.context = context;
     }
@@ -47,6 +48,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
         holder.deviceSerial.setText(inventory.deviceSerial);
         holder.deviceModel.setText(inventory.deviceModel);
         holder.deviceModelID.setText(inventory.deviceModelNumber);
+        holder.rackPosition.setText(inventory.rackPosition);
 
 
     }
@@ -68,6 +70,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
         private  TextView deviceSerial;
         private  TextView deviceModel;
         private  TextView deviceModelID;
+        private TextView rackPosition;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -82,7 +85,10 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
             deviceSerial = itemView.findViewById(R.id.report_id);
             deviceModel = itemView.findViewById(R.id.report_model);
             deviceModelID = itemView.findViewById(R.id.report_modelNumber);
+            rackPosition=itemView.findViewById(R.id.report_rackPosition);
 
         }
     }
+
+
 }

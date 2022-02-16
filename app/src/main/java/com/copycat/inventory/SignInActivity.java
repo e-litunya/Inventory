@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -28,17 +29,27 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText email, password;
     private TextView passwordReset;
-    private Button signIn;
+    private Button signIn, phoneSignIn;
     private FirebaseAuth firebaseAuth;
     private ProgressDialog progressDialog;
     private SharedPreferences myPrefs;
+    private ArrayList<String> customers;
+    private boolean dbComplete;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private String mVerificationID;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mVerificationCallbacks;
@@ -53,14 +64,18 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         password = findViewById(R.id.sign_userPassword);
         passwordReset = findViewById(R.id.pass_reset);
         signIn = findViewById(R.id.btn_SignON);
+        phoneSignIn = findViewById(R.id.btn_PhoneSign);
         signIn.setOnClickListener(this);
+        phoneSignIn.setOnClickListener(this);
         passwordReset.setOnClickListener(this);
         Linkify.addLinks(passwordReset, Linkify.WEB_URLS);
+        customers = new ArrayList<>();
         firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setTitle(R.string.AppName);
+        dbComplete = false;
         mVerificationCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
@@ -71,17 +86,22 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
             @Override
             public void onVerificationFailed(@NonNull FirebaseException e) {
-
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    setProgressDialogMessage(e.getMessage(), true);
+                } else if (e instanceof FirebaseTooManyRequestsException) {
+                    setProgressDialogMessage(e.getMessage(), true);
+                }
             }
 
             @Override
             public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                 super.onCodeSent(s, forceResendingToken);
-
+                setProgressDialogMessage(getString(R.string.codeSent), true);
                 mResendToken = forceResendingToken;
                 mVerificationID = s;
             }
         };
+
     }
 
     @Override
@@ -103,6 +123,14 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             } else {
                 resetPassword(email.getText().toString());
             }
+        } else if (v == phoneSignIn) {
+            setProgressDialogMessage(getString(R.string.phoneSign), true);
+
+            String phoneNumber = myPrefs.getString(Constants.PHONE_NUMBER, Constants.DEF_PHONE);
+            //notify progress text
+            startPhoneNumberVerification(phoneNumber);
+
+
         }
 
     }
@@ -120,6 +148,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
+                                customers = getCustomers();
                                 FirebaseUser user = firebaseAuth.getCurrentUser();
                                 setProgressDialogMessage(getString(R.string.logOncomplete), false);
                                 Handler handler = new Handler();
@@ -131,12 +160,6 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                                     }
                                 }, 3000);
 
-                            } else {
-
-                                String phoneNumber = myPrefs.getString(Constants.PHONE_NUMBER, Constants.DEF_PHONE);
-                                //notify progress text
-                                setProgressDialogMessage(getString(R.string.phoneSignIn), false);
-                                verifyPhoneNumber(phoneNumber);
                             }
 
                         }
@@ -158,9 +181,18 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
     private void launchInventory(FirebaseUser user) {
 
+        String[] customerNames = new String[]{};
+        String[] customerNamesDistinct = new String[]{};
         Intent mainIntent = new Intent(this, MainActivity.class);
         mainIntent.putExtra(Constants.USER, user.getEmail());
         mainIntent.putExtra(Constants.USERID, user);
+
+        if (!customers.isEmpty()) {
+            customerNames = customers.toArray(new String[customers.size()]);
+
+        }
+        customerNamesDistinct = Arrays.stream(customerNames).distinct().toArray(String[]::new);
+        mainIntent.putExtra(Constants.CUSTOMER_lABEL, customerNamesDistinct);
         startActivity(mainIntent);
     }
 
@@ -170,6 +202,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            customers = getCustomers();
                             FirebaseUser user = firebaseAuth.getCurrentUser();
                             setProgressDialogMessage(getString(R.string.logOncomplete), false);
                             Handler handler = new Handler();
@@ -185,7 +218,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 });
     }
 
-    private void verifyPhoneNumber(String phoneNumber) {
+    private void startPhoneNumberVerification(String phoneNumber) {
         PhoneAuthOptions authOptions =
                 PhoneAuthOptions.newBuilder(firebaseAuth)
                         .setPhoneNumber(phoneNumber)
@@ -233,5 +266,37 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private ArrayList<String> getCustomers() {
+        ArrayList<String> customers = new ArrayList<>();
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        Query customerQuery = databaseReference.orderByKey();
+
+        customerQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        SystemInventory systemInventory = dataSnapshot.getValue(SystemInventory.class);
+                        if (systemInventory != null) {
+                            customers.add(systemInventory.getCustomerName());
+                        }
+                    }
+                } else {
+                    Toast.makeText(SignInActivity.this, "No Data", Toast.LENGTH_LONG).show();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+        return customers;
+    }
 
 }

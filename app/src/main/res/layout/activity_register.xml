@@ -8,13 +8,13 @@
     android:padding="8dp"
     tools:context=".RegisterActivity">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:contentDescription="@string/cclLogo"
-        app:srcCompat="@mipmap/ic_ccllogo"
+        android:src="@mipmap/ic_ccllogo"
         android:paddingTop="@dimen/table_row_padding"
         tools:ignore="ImageContrastCheck" />
 

@@ -13,7 +13,7 @@ android {
         targetSdk 31
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -30,6 +30,12 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    packagingOptions{
+
+        exclude 'META-INF/RELEASE_NOTES.txt'
+    }
+
 }
 
 dependencies {
@@ -38,16 +44,19 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
-    implementation 'androidx.navigation:navigation-fragment:2.4.0'
-    implementation 'androidx.navigation:navigation-ui:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+    implementation 'androidx.navigation:navigation-fragment:2.4.1'
+    implementation 'androidx.navigation:navigation-ui:2.4.1'
+    implementation files('libs/poi-3.7-20101029.jar')
+    implementation files('libs/poi-ooxml-3.7-20101029.jar')
+    implementation files('libs\\junit-3.8.1.jar')
     testImplementation 'junit:junit:'
-    testImplementation 'org.testng:testng:7.3.0'
+    testImplementation 'org.testng:testng:7.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     implementation platform('com.google.firebase:firebase-bom:28.4.2')
     implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.android.gms:play-services-auth:20.0.1'
+    implementation 'com.google.android.gms:play-services-auth:20.1.0'
     implementation 'com.google.firebase:firebase-database'
     implementation 'com.github.clans:fab:1.6.4'
     implementation 'com.google.android.gms:play-services-vision:20.1.3'
@@ -58,6 +67,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.android.gms:play-services-safetynet:18.0.1'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

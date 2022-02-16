@@ -9,7 +9,7 @@ public class InventoryData {
     public String deviceManufacturer;
     public String chassisSerial;
     public String chassisModel;
-    public int serverSlot;
+    public String serverSlot;
     public String deviceSerial;
     public String rackPosition;
     public String deviceModel;
@@ -76,11 +76,11 @@ public class InventoryData {
         this.chassisModel = chassisModel;
     }
 
-    public int getServerSlot() {
+    public String getServerSlot() {
         return serverSlot;
     }
 
-    public void setServerSlot(int serverSlot) {
+    public void setServerSlot(String serverSlot) {
         this.serverSlot = serverSlot;
     }
 

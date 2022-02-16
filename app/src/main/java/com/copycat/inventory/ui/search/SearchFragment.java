@@ -137,7 +137,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
                 {
                     String message= getResources().getString(R.string.noRecord)+serialNumber.getText().toString();
                     setProgressDialogMessage(message);
-                    //Toast.makeText(getContext(),message,Toast.LENGTH_LONG).show();
+
                 }
             }
 
@@ -227,7 +227,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         {
             systemInventory.setRackPosition(getResources().getString(R.string.unavailable));
         }
-        if ((systemInventory.getServerSlot()==0)||(String.valueOf(systemInventory.getServerSlot()).equalsIgnoreCase("")))
+        if (TextUtils.isEmpty(String.valueOf(systemInventory.getServerSlot()))||systemInventory.getServerSlot()==0)
         {
             chassisSlot.setText(getResources().getString(R.string.unavailable));
         }
