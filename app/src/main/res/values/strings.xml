@@ -114,4 +114,6 @@
     <string name="directory">DC Inventory</string>
     <string name="internalStore">Unable to create folder in internal storage</string>
     <string name="saved">"Created "</string>
+    <string name="verificationCompleted">Verification Complete Signing in...</string>
+    <string name="wait">Waiting for SMS code...</string>
 </resources>

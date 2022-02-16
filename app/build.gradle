@@ -67,6 +67,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.android.gms:play-services-safetynet:18.0.1'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

@@ -1,6 +1,8 @@
 package com.copycat.inventory;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,8 +18,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.phone.SmsCodeRetriever;
+import com.google.android.gms.auth.api.phone.SmsRetriever;
+import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
@@ -51,8 +59,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     private ArrayList<String> customers;
     private boolean dbComplete;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
-    private String mVerificationID;
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mVerificationCallbacks;
+    private String mVerificationID,smsCode;
+
 
 
     @Override
@@ -74,35 +82,47 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
+        progressDialog.setIcon(R.mipmap.ic_ccllogo);
         progressDialog.setTitle(R.string.AppName);
         dbComplete = false;
-        mVerificationCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            @Override
-            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-
-                signInwithPhoneNumber(phoneAuthCredential);
-
-            }
-
-            @Override
-            public void onVerificationFailed(@NonNull FirebaseException e) {
-                if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                    setProgressDialogMessage(e.getMessage(), true);
-                } else if (e instanceof FirebaseTooManyRequestsException) {
-                    setProgressDialogMessage(e.getMessage(), true);
-                }
-            }
-
-            @Override
-            public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                super.onCodeSent(s, forceResendingToken);
-                setProgressDialogMessage(getString(R.string.codeSent), true);
-                mResendToken = forceResendingToken;
-                mVerificationID = s;
-            }
-        };
 
     }
+
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks
+            mVerificationCallbacks= new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        @Override
+        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+
+            setProgressDialogMessage(getString(R.string.verificationCompleted),true);
+
+            String code=phoneAuthCredential.getSmsCode();
+            if (code!=null)
+            {
+                PhoneAuthCredential credential=PhoneAuthProvider.getCredential(mVerificationID,code);
+                signInwithPhoneNumber(credential);
+            }
+
+
+        }
+
+        @Override
+        public void onVerificationFailed(@NonNull FirebaseException e) {
+            if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                setProgressDialogMessage(e.getMessage(), true);
+            } else if (e instanceof FirebaseTooManyRequestsException) {
+                setProgressDialogMessage(e.getMessage(), true);
+            }
+        }
+
+        @Override
+        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            super.onCodeSent(s, forceResendingToken);
+            setProgressDialogMessage(getString(R.string.codeSent), true);
+            mResendToken = forceResendingToken;
+            mVerificationID = s;
+        }
+    };
+
 
     @Override
     public void onClick(View v) {
@@ -298,5 +318,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
         return customers;
     }
+
+
 
 }
