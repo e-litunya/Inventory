@@ -108,7 +108,7 @@
     <string name="inventoryFail">Could not fetch inventory for</string>
     <string name="emptySheet">Sheet1</string>
     <string name="emailExists">An account exists with the entered email address</string>
-    <string name="passwordless">PASSWORDLESS SIGN IN</string>
+    <string name="passwordless">REQUEST OTP</string>
     <string name="phoneSign">Signing in with phone number...</string>
     <string name="codeSent">Verification code sent...</string>
     <string name="directory">DC Inventory</string>
@@ -116,4 +116,5 @@
     <string name="saved">"Created "</string>
     <string name="verificationCompleted">Verification Complete Signing in...</string>
     <string name="wait">Waiting for SMS code...</string>
+    <string name="permissionDenied">Permission to write to storage denied</string>
 </resources>

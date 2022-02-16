@@ -12,8 +12,9 @@
         android:orientation="horizontal"
         android:weightSum="1"
         android:layout_gravity="top"
+        android:padding="@dimen/table_row_padding"
         android:layout_height="wrap_content"
-        android:baselineAligned="false">
+        android:baselineAligned="true">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/device_type"
@@ -33,14 +34,14 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton
+            android:id="@+id/downloadInventory"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.4"
-            android:id="@+id/downloadInventory"
             android:background="@drawable/button_customization"
             android:backgroundTint="@color/secondaryDarkColor"
-            android:src="@drawable/ic_baseline_cloud_download_48"
             android:contentDescription="@string/cclLogo"
+            android:src="@drawable/ic_baseline_cloud_download_48"
 
             />
 

@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.provider.MediaStore;
 import android.util.SparseArray;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public static String userID;
     public static String[] listedCustomers;
     private FirebaseAuth firebaseAuth;
+    private static final int STORAGE_CODE=181;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +64,10 @@ public class MainActivity extends AppCompatActivity {
             askCameraPermission();
         }
 
-        if (!checkStoragePermission())
-        {
-            askStoragePermission();
-        }
+       if (!checkStoragePermission())
+       {
+           ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},STORAGE_CODE);
+       }
         firebaseAuth = FirebaseAuth.getInstance();
 
     }
@@ -97,20 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private boolean checkStoragePermission() {
-        boolean result=false;
-        result=ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
 
-
-        return result;
-    }
-
-    private void askStoragePermission() {
-        int CAMERA_STORAGE_PER_CODE = 180;
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_STORAGE_PER_CODE);
-
-
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -160,6 +150,33 @@ public class MainActivity extends AppCompatActivity {
         clipboardManager.setPrimaryClip(clipData);
 
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+
+           if(requestCode==STORAGE_CODE) {
+               if (grantResults.length > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+                   SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
+                   SharedPreferences.Editor editor = sharedPreferences.edit();
+                   editor.putBoolean(Constants.FOLDER, true);
+                   editor.apply();
+               }
+
+           }
+
+
+
+
+    }
+
+    private boolean checkStoragePermission()
+    {
+        boolean status=getSharedPreferences(Constants.LOCALDB,MODE_PRIVATE).getBoolean(Constants.FOLDER,false);
+
+        return status;
     }
 
 

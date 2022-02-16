@@ -1,12 +1,17 @@
 package com.copycat.inventory.ui.reports;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,8 +23,14 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,44 +54,35 @@ import com.google.firebase.database.ValueEventListener;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Color;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class ReportsFragment extends Fragment implements View.OnClickListener {
 
+    private static Cell cell;
+    private final int REQUEST_CODE = 181;
     private ReportsViewModel reportsViewModel;
     private FragmentReportsBinding binding;
     private AutoCompleteTextView customersTextView;
     private ImageButton cloudDownload;
     private String selectedCustomer;
     private RecyclerView recyclerView;
-    private static Cell cell;
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
     private ProgressDialog progressDialog;
+    private HSSFWorkbook hssfWorkbook;
     private ArrayList<InventoryData> inventoryDataArrayList;
     private InventoryAdapter inventoryAdapter;
+    private String storagePath;
     private FloatingActionButton exportReportButton;
 
 
@@ -141,7 +143,14 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         }
         if (v == exportReportButton) {
             try {
-                generateCustomerReport();
+                if (!checkPermission()) {
+                    requestStoragePermissions();
+                    generateCustomerReport();
+
+                } else {
+
+                    generateCustomerReport();
+                }
             } catch (NullPointerException | IOException e) {
                 e.printStackTrace();
             }
@@ -265,21 +274,18 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
 
     private void generateCustomerReport() throws NullPointerException, IOException {
         String sheetName;
-        HSSFWorkbook xssfWorkbook=new HSSFWorkbook();
+        hssfWorkbook = new HSSFWorkbook();
 
 
-        if (selectedCustomer!=null)
-        {
-            sheetName=selectedCustomer;
-        }
-        else
-        {
-            sheetName=getString(R.string.emptySheet);
+        if (selectedCustomer != null) {
+            sheetName = selectedCustomer;
+        } else {
+            sheetName = getString(R.string.emptySheet);
         }
 
 
-        HSSFSheet inventorySheet=xssfWorkbook.createSheet(selectedCustomer);
-        HSSFCellStyle headerCellStyle= xssfWorkbook.createCellStyle();
+        HSSFSheet inventorySheet = hssfWorkbook.createSheet(selectedCustomer);
+        HSSFCellStyle headerCellStyle = hssfWorkbook.createCellStyle();
         headerCellStyle.setAlignment(CellStyle.ALIGN_CENTER);
         headerCellStyle.setBorderLeft(HSSFCellStyle.BORDER_THICK);
         headerCellStyle.setBorderRight(HSSFCellStyle.BORDER_THICK);
@@ -287,154 +293,146 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         headerCellStyle.setBorderBottom(HSSFCellStyle.BORDER_THICK);
 
 
-        String [] headers=new String[] {getString(R.string.data_center)
-                ,getString(R.string.rack_number),getString(R.string.system_type),
-                getString(R.string.form_factor),getString(R.string.device_vendor),
-                getString(R.string.enclosure_serial),getString(R.string.enclosure_model),
-                getString(R.string.server_slot),getString(R.string.system_serial),getString(R.string.rack_position),
-                getString(R.string.system_model),getString(R.string.system_machine_product)
+        String[] headers = new String[]{getString(R.string.data_center)
+                , getString(R.string.rack_number), getString(R.string.system_type),
+                getString(R.string.form_factor), getString(R.string.device_vendor),
+                getString(R.string.enclosure_serial), getString(R.string.enclosure_model),
+                getString(R.string.server_slot), getString(R.string.system_serial), getString(R.string.rack_position),
+                getString(R.string.system_model), getString(R.string.system_machine_product)
         };
 
         Row row = inventorySheet.createRow(0);
-        for (int i=0;i<headers.length;i++)
-        {
-            cell=row.createCell(i);
+        for (int i = 0; i < headers.length; i++) {
+            cell = row.createCell(i);
             cell.setCellStyle(headerCellStyle);
             cell.setCellValue(headers[i]);
         }
 
-        HSSFCellStyle dataCellStyle=xssfWorkbook.createCellStyle();
+        HSSFCellStyle dataCellStyle = hssfWorkbook.createCellStyle();
         dataCellStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
         dataCellStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
         dataCellStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
         dataCellStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
 
-        for (int i=0;i<inventoryDataArrayList.size();i++)
-        {
-            Row rowData=inventorySheet.createRow(i+1);
-            cell=rowData.createCell(0);
+        for (int i = 0; i < inventoryDataArrayList.size(); i++) {
+            Row rowData = inventorySheet.createRow(i + 1);
+            cell = rowData.createCell(0);
             cell.setCellValue(inventoryDataArrayList.get(i).getDataCenter());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(1);
+            cell = rowData.createCell(1);
             cell.setCellValue(inventoryDataArrayList.get(i).getRackName());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(2);
+            cell = rowData.createCell(2);
             cell.setCellValue(inventoryDataArrayList.get(i).getDeviceType());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(3);
+            cell = rowData.createCell(3);
             cell.setCellValue(inventoryDataArrayList.get(i).getDeviceFormFactor());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(4);
+            cell = rowData.createCell(4);
             cell.setCellValue(inventoryDataArrayList.get(i).getDeviceManufacturer());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(5);
+            cell = rowData.createCell(5);
             cell.setCellValue(inventoryDataArrayList.get(i).getChassisSerial());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(6);
+            cell = rowData.createCell(6);
             cell.setCellValue(inventoryDataArrayList.get(i).getChassisModel());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(7);
+            cell = rowData.createCell(7);
             cell.setCellValue(inventoryDataArrayList.get(i).getServerSlot());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(8);
+            cell = rowData.createCell(8);
             cell.setCellValue(inventoryDataArrayList.get(i).getDeviceSerial());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(9);
+            cell = rowData.createCell(9);
             cell.setCellValue(inventoryDataArrayList.get(i).getRackPosition());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(10);
+            cell = rowData.createCell(10);
             cell.setCellValue(inventoryDataArrayList.get(i).getDeviceModel());
             cell.setCellStyle(dataCellStyle);
 
-            cell=rowData.createCell(11);
+            cell = rowData.createCell(11);
             cell.setCellValue(inventoryDataArrayList.get(i).getDeviceModelNumber());
             cell.setCellStyle(dataCellStyle);
 
         }
 
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault());
-        Date date=new Date();
-        String fileName=sheetName.concat("_").concat(simpleDateFormat.format(date)).concat(".xls");
-        writeWorkbookToFile(xssfWorkbook,fileName);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault());
+        Date date = new Date();
+        String fileName = sheetName.concat("_").concat(simpleDateFormat.format(date)).concat(".xls");
+        createSpreadsheet(fileName);
 
 
-    }
-
-    private void writeWorkbookToFile(HSSFWorkbook workbook,String fileName) throws IOException,RuntimeException
-    {
-        String path=getDirectoryPath();
-        if (path!=null)
-        {
-            File file=new File(path,fileName);
-            FileOutputStream fileOutputStream=new FileOutputStream(file);
-            workbook.write(fileOutputStream);
-            fileOutputStream.flush();
-            String filePath=file.getAbsolutePath();
-            fileOutputStream.close();
-            String message=getString(R.string.saved).concat(filePath);
-            setProgressDialogMessage(message,true);
-        }
-        else
-        {
-            setProgressDialogMessage(getString(R.string.internalStore),true);
-        }
-    }
-
-
-    private String getDirectoryPath()
-    {   String path=null;
-        File dir;
-        dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),getString(R.string.directory));
-           if (dir.exists())
-           {
-               path=dir.getAbsolutePath();
-           }
-           else
-           {
-              boolean success= dir.mkdir();
-               if (success)
-               {
-                   path=dir.getAbsolutePath();
-               }
-           }
-
-           if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.R)
-           {
-               dir=new File(getContext().getExternalFilesDir(getString(R.string.app_name)),getString(R.string.directory));
-               if (dir.exists())
-               {
-                   path=dir.getAbsolutePath();
-               }
-               else
-               {
-                   boolean success= dir.mkdir();
-                   if (success)
-                   {
-                       path=dir.getAbsolutePath();
-                   }
-               }
-
-           }
-
-
-        return path;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences=getActivity().getSharedPreferences(Constants.LOCALDB, Context.MODE_PRIVATE);
-        editor=preferences.edit();
+        storagePath = null;
+        hssfWorkbook=null;
 
     }
+
+    private boolean checkPermission() {
+        boolean permission;
+
+        boolean write = (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        boolean read = (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+
+        permission = read && write;
+
+        return permission;
+    }
+
+    private void requestStoragePermissions() {
+
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 181);
+    }
+
+    private ActivityResultLauncher<Intent> fileWrite=registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode()== Activity.RESULT_OK)
+            {
+                Intent intent=result.getData();
+                ParcelFileDescriptor descriptor = null;
+                try {
+                    descriptor = getContext().getContentResolver().openFileDescriptor(intent.getData(),"rw");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                FileOutputStream fileOutputStream=new FileOutputStream(descriptor.getFileDescriptor());
+                if (hssfWorkbook!=null)
+                {
+                    try {
+                        hssfWorkbook.write(fileOutputStream);
+                        fileOutputStream.flush();
+                        fileOutputStream.close();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    });
+
+    private void createSpreadsheet(String fileName)
+    {
+        Intent docCreate=new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        docCreate.addCategory(Intent.CATEGORY_OPENABLE);
+        docCreate.setType("application/vnd.ms-excel");
+        docCreate.putExtra(Intent.EXTRA_TITLE,fileName);
+        fileWrite.launch(docCreate);
+    }
+
 }

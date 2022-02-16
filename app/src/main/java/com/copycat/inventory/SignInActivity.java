@@ -1,8 +1,6 @@
 package com.copycat.inventory;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,16 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.auth.api.phone.SmsCodeRetriever;
-import com.google.android.gms.auth.api.phone.SmsRetriever;
-import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
@@ -59,9 +52,44 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     private ArrayList<String> customers;
     private boolean dbComplete;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
-    private String mVerificationID,smsCode;
+    private String mVerificationID, smsCode;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks
+            mVerificationCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        @Override
+        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+
+            setProgressDialogMessage(getString(R.string.verificationCompleted), true);
+
+            String code = phoneAuthCredential.getSmsCode();
+            if (code != null) {
+                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationID, code);
+                signInwithPhoneNumber(credential);
+            }
 
 
+        }
+
+        @Override
+        public void onVerificationFailed(@NonNull FirebaseException e) {
+            if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                setProgressDialogMessage(e.getMessage(), true);
+            } else if (e instanceof FirebaseTooManyRequestsException) {
+                setProgressDialogMessage(e.getMessage(), true);
+            }
+            else
+            {
+                setProgressDialogMessage(e.getMessage(),true);
+            }
+        }
+
+        @Override
+        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            super.onCodeSent(s, forceResendingToken);
+            setProgressDialogMessage(getString(R.string.codeSent), true);
+            mResendToken = forceResendingToken;
+            mVerificationID = s;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,42 +115,6 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         dbComplete = false;
 
     }
-
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks
-            mVerificationCallbacks= new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-        @Override
-        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-
-            setProgressDialogMessage(getString(R.string.verificationCompleted),true);
-
-            String code=phoneAuthCredential.getSmsCode();
-            if (code!=null)
-            {
-                PhoneAuthCredential credential=PhoneAuthProvider.getCredential(mVerificationID,code);
-                signInwithPhoneNumber(credential);
-            }
-
-
-        }
-
-        @Override
-        public void onVerificationFailed(@NonNull FirebaseException e) {
-            if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                setProgressDialogMessage(e.getMessage(), true);
-            } else if (e instanceof FirebaseTooManyRequestsException) {
-                setProgressDialogMessage(e.getMessage(), true);
-            }
-        }
-
-        @Override
-        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-            super.onCodeSent(s, forceResendingToken);
-            setProgressDialogMessage(getString(R.string.codeSent), true);
-            mResendToken = forceResendingToken;
-            mVerificationID = s;
-        }
-    };
-
 
     @Override
     public void onClick(View v) {
@@ -176,7 +168,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                                     @Override
                                     public void run() {
                                         progressDialog.dismiss();
-                                        launchInventory(user);
+                                        launchInventory(user,null);
                                     }
                                 }, 3000);
 
@@ -199,12 +191,19 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void launchInventory(FirebaseUser user) {
+    private void launchInventory(FirebaseUser user, @Nullable String emailID) {
 
         String[] customerNames = new String[]{};
         String[] customerNamesDistinct = new String[]{};
         Intent mainIntent = new Intent(this, MainActivity.class);
-        mainIntent.putExtra(Constants.USER, user.getEmail());
+        if (emailID==null)
+        {
+            mainIntent.putExtra(Constants.USER, user.getEmail());
+        }
+        else
+        {
+            mainIntent.putExtra(Constants.USER,emailID);
+        }
         mainIntent.putExtra(Constants.USERID, user);
 
         if (!customers.isEmpty()) {
@@ -224,13 +223,14 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                         if (task.isSuccessful()) {
                             customers = getCustomers();
                             FirebaseUser user = firebaseAuth.getCurrentUser();
+                            String myEmail=getSharedPreferences(Constants.LOCALDB,MODE_PRIVATE).getString(Constants.USER_EMAIL,getString(R.string.emptyString));
                             setProgressDialogMessage(getString(R.string.logOncomplete), false);
                             Handler handler = new Handler();
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
                                     progressDialog.dismiss();
-                                    launchInventory(user);
+                                    launchInventory(user,myEmail);
                                 }
                             }, 3000);
                         }
@@ -318,7 +318,6 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
         return customers;
     }
-
 
 
 }

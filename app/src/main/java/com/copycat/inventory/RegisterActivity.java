@@ -101,8 +101,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     String phoneNumber = countryCodePicker.getFullNumberWithPlus();
 
                     registerUser(userEmail, userPassword);
-                    editor.putString(Constants.PHONE_NUMBER, phoneNumber);
-                    editor.apply();
                 } else {
                     makeNotifications(getResources().getString(R.string.complexPassword));
                 }
@@ -160,10 +158,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                if (e instanceof FirebaseAuthUserCollisionException)
-                {
+                if (e instanceof FirebaseAuthUserCollisionException) {
                     setProgressDialogMessage(getString(R.string.emailExists));
-                    Handler handler=new Handler();
+                    Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -171,11 +168,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             String phoneNumber = countryCodePicker.getFullNumberWithPlus();
                             editor.putString(Constants.PHONE_NUMBER, phoneNumber);
                             editor.putBoolean(Constants.SIGNUP, true);
+                            editor.putString(Constants.USER_EMAIL,userEmail);
                             editor.apply();
                             launchSignIn();
 
                         }
-                    },3000);
+                    }, 3000);
                 }
             }
         });
@@ -191,7 +189,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
                         if (task.isSuccessful()) {
                             setProgressDialogMessage(getString(R.string.accountSuccess));
+                            String phoneNumber = countryCodePicker.getFullNumberWithPlus();
                             editor.putBoolean(Constants.SIGNUP, true);
+                            editor.putString(Constants.PHONE_NUMBER,phoneNumber);
+                            editor.putString(Constants.USER_EMAIL,userEmail);
                             editor.apply();
                             Handler handler = new Handler();
                             handler.postDelayed(new Runnable() {
@@ -222,4 +223,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         Intent intent = new Intent(this, SignInActivity.class);
         startActivity(intent);
     }
+
+
 }
