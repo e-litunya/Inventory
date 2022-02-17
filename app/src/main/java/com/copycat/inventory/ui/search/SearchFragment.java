@@ -14,9 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.copycat.inventory.R;
@@ -31,7 +29,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SearchFragment extends Fragment implements View.OnClickListener {
 
-    private SearchViewModel searchViewModel;
     private FragmentSearchBinding binding;
     private EditText serialNumber;
     private TextView customer,datacenter,rack,deviceType,engineer,
@@ -43,8 +40,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        searchViewModel =
-                new ViewModelProvider(this).get(SearchViewModel.class);
+        SearchViewModel searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
 
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -166,12 +162,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         try {
 
             Handler handler=new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    progressDialog.dismiss();
-                }
-            },2000);
+            handler.postDelayed(() -> progressDialog.dismiss(),2000);
 
         }catch (Exception e)
         {

@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.ViewHolder> {
 
@@ -28,9 +27,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
 
         View view = LayoutInflater.from(context).inflate(R.layout.inventory_report_row, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(view);
-
-        return viewHolder;
+        return new ViewHolder(view);
     }
 
     @Override

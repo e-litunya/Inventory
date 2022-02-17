@@ -31,7 +31,7 @@
         android:textColorHint="@color/primaryLightColor"
         android:inputType="textEmailAddress"
         android:id="@+id/userEmail"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="?android:textColorPrimary"
         tools:ignore="TextContrastCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -48,7 +48,7 @@
             android:textColorHint="@color/primaryLightColor"
             android:inputType="textPassword"
             android:id="@+id/userPassword"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="?android:textColorPrimary"
             tools:ignore="TextContrastCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -65,7 +65,7 @@
             android:textColorHint="@color/primaryLightColor"
             android:inputType="textPassword"
             android:id="@+id/userRetypePassword"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="?android:textColorPrimary"
             tools:ignore="TextContrastCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -95,7 +95,7 @@
                     android:textColorHint="@color/primaryLightColor"
                     android:inputType="phone"
                     android:id="@+id/telephone"
-                    android:textColor="@color/primaryTextColor"
+                    android:textColor="?android:textColorPrimary"
                     tools:ignore="TextContrastCheck" />
             </com.google.android.material.textfield.TextInputLayout>
 

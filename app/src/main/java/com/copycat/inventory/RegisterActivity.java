@@ -31,11 +31,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$";
     private static final Pattern PATTERN = Pattern.compile(PASSWORD_PATTERN);
     private EditText email, password, retype_password, phone;
-    private Button register;
     private FirebaseAuth firebaseAuth;
-    private String userEmail, userPassword;
+    private String userEmail;
     private CountryCodePicker countryCodePicker;
-    private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private ProgressDialog progressDialog;
 
@@ -43,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        sharedPreferences = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
         editor = sharedPreferences.edit();
         firebaseAuth = FirebaseAuth.getInstance();
         countryCodePicker = findViewById(R.id.country_code);
@@ -51,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         email = findViewById(R.id.userEmail);
         password = findViewById(R.id.userPassword);
         retype_password = findViewById(R.id.userRetypePassword);
-        register = findViewById(R.id.btn_Register);
+        Button register = findViewById(R.id.btn_Register);
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
@@ -97,8 +95,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     //proceed with registration
 
                     userEmail = email.getText().toString();
-                    userPassword = retype_password.getText().toString();
-                    String phoneNumber = countryCodePicker.getFullNumberWithPlus();
+                    String userPassword = retype_password.getText().toString();
+                   // String phoneNumber = countryCodePicker.getFullNumberWithPlus();
 
                     registerUser(userEmail, userPassword);
                 } else {
@@ -141,29 +139,22 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         setProgressDialogMessage(getString(R.string.signup));
         firebaseAuth.createUserWithEmailAndPassword(accountEmail, accountPassword)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+                .addOnCompleteListener(this, task -> {
 
-                        if (task.isSuccessful()) {
-                            //send verification email
-                            FirebaseUser user = firebaseAuth.getCurrentUser();
-                            if (user != null) {
+                    if (task.isSuccessful()) {
+                        //send verification email
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
+                        if (user != null) {
 
-                                sendEmailVerification(user);
-                            }
-
+                            sendEmailVerification(user);
                         }
+
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if (e instanceof FirebaseAuthUserCollisionException) {
-                    setProgressDialogMessage(getString(R.string.emailExists));
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
+                }).addOnFailureListener(e -> {
+                    if (e instanceof FirebaseAuthUserCollisionException) {
+                        setProgressDialogMessage(getString(R.string.emailExists));
+                        Handler handler = new Handler();
+                        handler.postDelayed(() -> {
 
                             String phoneNumber = countryCodePicker.getFullNumberWithPlus();
                             editor.putString(Constants.PHONE_NUMBER, phoneNumber);
@@ -172,39 +163,31 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             editor.apply();
                             launchSignIn();
 
-                        }
-                    }, 3000);
-                }
-            }
-        });
+                        }, 3000);
+                    }
+                });
     }
 
     private void sendEmailVerification(FirebaseUser newUser) {
 
 
         newUser.sendEmailVerification()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                .addOnCompleteListener(this, task -> {
 
-                        if (task.isSuccessful()) {
-                            setProgressDialogMessage(getString(R.string.accountSuccess));
-                            String phoneNumber = countryCodePicker.getFullNumberWithPlus();
-                            editor.putBoolean(Constants.SIGNUP, true);
-                            editor.putString(Constants.PHONE_NUMBER,phoneNumber);
-                            editor.putString(Constants.USER_EMAIL,userEmail);
-                            editor.apply();
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressDialog.dismiss();
-                                    launchSignIn();
+                    if (task.isSuccessful()) {
+                        setProgressDialogMessage(getString(R.string.accountSuccess));
+                        String phoneNumber = countryCodePicker.getFullNumberWithPlus();
+                        editor.putBoolean(Constants.SIGNUP, true);
+                        editor.putString(Constants.PHONE_NUMBER,phoneNumber);
+                        editor.putString(Constants.USER_EMAIL,userEmail);
+                        editor.apply();
+                        Handler handler = new Handler();
+                        handler.postDelayed(() -> {
+                            progressDialog.dismiss();
+                            launchSignIn();
 
-                                }
-                            }, 10000);
+                        }, 10000);
 
-                        }
                     }
                 });
     }

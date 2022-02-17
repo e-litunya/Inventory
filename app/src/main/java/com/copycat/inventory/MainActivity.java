@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkCameraPermission() {
-        boolean result=false;
+        boolean result;
         result=ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED;
 
 
@@ -174,9 +174,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkStoragePermission()
     {
-        boolean status=getSharedPreferences(Constants.LOCALDB,MODE_PRIVATE).getBoolean(Constants.FOLDER,false);
 
-        return status;
+        return getSharedPreferences(Constants.LOCALDB,MODE_PRIVATE).getBoolean(Constants.FOLDER,false);
     }
 
 

@@ -26,7 +26,7 @@
         android:textColorHint="@color/primaryLightColor"
         android:id="@+id/customer_name"
         android:inputType="textCapWords"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="?android:textColorPrimary"
         tools:ignore="TextContrastCheck" />
 
 </com.google.android.material.textfield.TextInputLayout>
@@ -43,7 +43,7 @@
             android:textColorHint="@color/primaryLightColor"
             android:inputType="textCapWords"
             android:id="@+id/datacenter_name"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="?android:textColorPrimary"
             tools:ignore="TextContrastCheck"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -60,7 +60,7 @@
             android:id="@+id/rack_number"
             android:textColorHint="@color/primaryLightColor"
             android:inputType="textCapWords"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="?android:textColorPrimary"
             tools:ignore="TextContrastCheck"
             />
 
@@ -144,7 +144,7 @@
                 android:id="@+id/chassis_sn"
                 android:textColorHint="@color/primaryLightColor"
                 android:inputType="textCapCharacters"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 tools:ignore="TextContrastCheck"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -165,7 +165,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="textCapWords"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 android:textColorHint="@color/primaryLightColor"
                 tools:ignore="TextContrastCheck" />
 
@@ -193,7 +193,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="number"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 android:textColorHint="@color/primaryLightColor"
                 tools:ignore="TextContrastCheck" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -215,7 +215,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="textCapCharacters"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 android:textColorHint="@color/primaryLightColor"
                 tools:ignore="TextContrastCheck" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -246,7 +246,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:textSize="16sp"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 android:textColorHint="@color/primaryLightColor"
                 tools:ignore="TextContrastCheck,TouchTargetSizeCheck,SpeakableTextPresentCheck" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -264,7 +264,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:textSize="16sp"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 android:textColorHint="@color/primaryLightColor"
                 tools:ignore="TextContrastCheck,TouchTargetSizeCheck,SpeakableTextPresentCheck" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -286,7 +286,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="textCapWords"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 android:textColorHint="@color/primaryLightColor"
                 tools:ignore="TextContrastCheck" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -307,7 +307,7 @@
                 android:id="@+id/system_product"
                 android:textColorHint="@color/primaryLightColor"
                 android:inputType="textCapCharacters"
-                android:textColor="@color/primaryTextColor"
+                android:textColor="?android:textColorPrimary"
                 tools:ignore="TextContrastCheck"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -333,6 +333,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:contentDescription="@string/capture"
+            android:padding="@dimen/table_row_padding"
             app:backgroundTint="@color/secondaryLightColor"
             android:src="@drawable/ic_baseline_filter_center_focus_48"
             app:fabSize="normal" />

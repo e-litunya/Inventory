@@ -11,6 +11,5 @@ public class Constants {
     public static final String CUSTOMER_NAMES="Customer Name";
     public static final String CUSTOMER_lABEL="Customers";
     public static final String FOLDER ="dir";
-    public static final String CREATED ="Data Folder" ;
     public static final String USER_EMAIL ="EmailID" ;
 }

@@ -77,13 +77,13 @@
     <string name="emailPassEmpty">Email or Password cannot be empty</string>
     <string name="logOncomplete">Sign in complete… Welcome</string>
     <string name="signup">Signing up, please wait…</string>
-    <string name="defRack">0 -- 0</string>
+    <string name="defRack">0 — 0</string>
     <string name="emptyString">\"\"</string>
-    <string name="saveStart">Saving the device details...</string>
+    <string name="saveStart">Saving the device details…</string>
     <string name="saveComplete">Device Details Saved Successfully</string>
     <string name="unavailable">Not Applicable</string>
     <string name="emptySerial">Serial Number cannot be empty</string>
-    <string name="searchStart">Searching, Please Wait...</string>
+    <string name="searchStart">Searching, Please Wait…</string>
     <string name="noRecord">"No Record Found for "</string>
     <string name="errorLabel">Error :</string>
     <string name="engineer">Created By</string>
@@ -97,7 +97,7 @@
     <string name="invalidPassword">Password entred is Invalid</string>
     <string name="invalidEmail">Email address is invalid</string>
     <string name="validationError">Cannot Validate Device based on entered data</string>
-    <string name="chassisquery">is a chassis searching...</string>
+    <string name="chassisquery">is a chassis searching…</string>
     <string name="error">Error in running OCR</string>
     <string name="clipboard">clipboard data</string>
     <string name="imageIssue">Issue with camera image</string>
@@ -106,15 +106,15 @@
     <string name="dbError">"Encountered database error: "</string>
     <string name="customer_missing">You must select customer first</string>
     <string name="inventoryFail">Could not fetch inventory for</string>
-    <string name="emptySheet">Sheet1</string>
+    <string name="emptySheet">Sheet 1</string>
     <string name="emailExists">An account exists with the entered email address</string>
-    <string name="passwordless">REQUEST OTP</string>
-    <string name="phoneSign">Signing in with phone number...</string>
-    <string name="codeSent">Verification code sent...</string>
+    <string name="passwordless">OTP SIGN IN</string>
+    <string name="phoneSign">Signing in with phone number…</string>
+    <string name="codeSent">Verification code sent…</string>
     <string name="directory">DC Inventory</string>
     <string name="internalStore">Unable to create folder in internal storage</string>
     <string name="saved">"Created "</string>
-    <string name="verificationCompleted">Verification Complete Signing in...</string>
-    <string name="wait">Waiting for SMS code...</string>
+    <string name="verificationCompleted">Verification Complete Signing in…</string>
+    <string name="wait">Waiting for SMS code…</string>
     <string name="permissionDenied">Permission to write to storage denied</string>
 </resources>

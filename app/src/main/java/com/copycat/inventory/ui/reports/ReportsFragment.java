@@ -1,15 +1,12 @@
 package com.copycat.inventory.ui.reports;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
@@ -21,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -58,11 +54,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,36 +64,58 @@ import java.util.Locale;
 
 public class ReportsFragment extends Fragment implements View.OnClickListener {
 
-    private static Cell cell;
-    private final int REQUEST_CODE = 181;
-    private ReportsViewModel reportsViewModel;
     private FragmentReportsBinding binding;
-    private AutoCompleteTextView customersTextView;
     private ImageButton cloudDownload;
     private String selectedCustomer;
-    private RecyclerView recyclerView;
     private ProgressDialog progressDialog;
     private HSSFWorkbook hssfWorkbook;
     private ArrayList<InventoryData> inventoryDataArrayList;
     private InventoryAdapter inventoryAdapter;
-    private String storagePath;
     private FloatingActionButton exportReportButton;
+    private final ActivityResultLauncher<Intent> fileWrite = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent intent = result.getData();
+                ParcelFileDescriptor descriptor = null;
+                try {
+                    assert intent != null;
+                    if (intent.getData()!=null)
+                    {
+                        descriptor = getContext().getContentResolver().openFileDescriptor(intent.getData(), "rw");
+                    }
 
+                } catch (FileNotFoundException | NullPointerException e) {
+                    e.printStackTrace();
+                }
+                FileOutputStream fileOutputStream = new FileOutputStream(descriptor.getFileDescriptor());
+                if (hssfWorkbook != null) {
+                    try {
+                        hssfWorkbook.write(fileOutputStream);
+                        fileOutputStream.flush();
+                        fileOutputStream.close();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    });
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        reportsViewModel =
-                new ViewModelProvider(this).get(ReportsViewModel.class);
+        ReportsViewModel reportsViewModel = new ViewModelProvider(this).get(ReportsViewModel.class);
 
         binding = FragmentReportsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         selectedCustomer = null;
-        customersTextView = root.findViewById(R.id.report_customers);
+        AutoCompleteTextView customersTextView = root.findViewById(R.id.report_customers);
         ArrayAdapter<String> customerAdapters = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, MainActivity.listedCustomers);
         customersTextView.setAdapter(customerAdapters);
         customersTextView.setThreshold(2);
         customerAdapters.notifyDataSetChanged();
-        recyclerView = root.findViewById(R.id.customerInventory);
+        RecyclerView recyclerView = root.findViewById(R.id.customerInventory);
         cloudDownload = root.findViewById(R.id.downloadInventory);
         cloudDownload.setOnClickListener(this);
         exportReportButton = root.findViewById(R.id.exportButton);
@@ -109,12 +125,7 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setTitle(getResources().getString(R.string.app_name));
-        customersTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedCustomer = parent.getItemAtPosition(position).toString();
-            }
-        });
+        customersTextView.setOnItemClickListener((parent, view, position, id) -> selectedCustomer = parent.getItemAtPosition(position).toString());
 
         inventoryDataArrayList = new ArrayList<>();
         inventoryAdapter = new InventoryAdapter(inventoryDataArrayList, getContext());
@@ -166,6 +177,7 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference();
         Query dbQuery = dbReference.orderByChild(Constants.CUSTOMER_NAMES).equalTo(customerName);
         dbQuery.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -229,12 +241,7 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         if (timed) {
             progressDialog.show();
             Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    progressDialog.dismiss();
-                }
-            }, 2000);
+            handler.postDelayed(() -> progressDialog.dismiss(), 2000);
         } else {
             progressDialog.show();
         }
@@ -302,6 +309,7 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         };
 
         Row row = inventorySheet.createRow(0);
+        Cell cell;
         for (int i = 0; i < headers.length; i++) {
             cell = row.createCell(i);
             cell.setCellStyle(headerCellStyle);
@@ -377,8 +385,8 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        storagePath = null;
-        hssfWorkbook=null;
+        String storagePath = null;
+        hssfWorkbook = null;
 
     }
 
@@ -398,40 +406,11 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 181);
     }
 
-    private ActivityResultLauncher<Intent> fileWrite=registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result.getResultCode()== Activity.RESULT_OK)
-            {
-                Intent intent=result.getData();
-                ParcelFileDescriptor descriptor = null;
-                try {
-                    descriptor = getContext().getContentResolver().openFileDescriptor(intent.getData(),"rw");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                FileOutputStream fileOutputStream=new FileOutputStream(descriptor.getFileDescriptor());
-                if (hssfWorkbook!=null)
-                {
-                    try {
-                        hssfWorkbook.write(fileOutputStream);
-                        fileOutputStream.flush();
-                        fileOutputStream.close();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    });
-
-    private void createSpreadsheet(String fileName)
-    {
-        Intent docCreate=new Intent(Intent.ACTION_CREATE_DOCUMENT);
+    private void createSpreadsheet(String fileName) {
+        Intent docCreate = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         docCreate.addCategory(Intent.CATEGORY_OPENABLE);
         docCreate.setType("application/vnd.ms-excel");
-        docCreate.putExtra(Intent.EXTRA_TITLE,fileName);
+        docCreate.putExtra(Intent.EXTRA_TITLE, fileName);
         fileWrite.launch(docCreate);
     }
 

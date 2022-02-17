@@ -8,14 +8,13 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class InventoryApp extends Application {
 
-    private FirebaseApp firebaseApp;
-
     @Override
     public void onCreate() {
         super.onCreate();
-        firebaseApp=FirebaseApp.initializeApp(this);
+        FirebaseApp firebaseApp;
+        firebaseApp = FirebaseApp.initializeApp(this);
         try {
-            if (firebaseApp!=null)
+            if (firebaseApp !=null)
             firebaseApp.setAutomaticResourceManagementEnabled(true);
         }catch (NullPointerException e)
         {

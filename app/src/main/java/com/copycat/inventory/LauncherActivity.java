@@ -13,8 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.copycat.inventory.databinding.ActivityLauncherBinding;
 
-import java.util.Objects;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -32,8 +30,7 @@ public class LauncherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         com.copycat.inventory.databinding.ActivityLauncherBinding binding = ActivityLauncherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        if (getSupportActionBar()!=null)
-        {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
         sharedPreferences = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
@@ -59,13 +56,13 @@ public class LauncherActivity extends AppCompatActivity {
 
     private void launchActivity() {
         boolean signUp = sharedPreferences.getBoolean(Constants.SIGNUP, false);
-        if(!signUp) {
-            Intent intent = new Intent(this, RegisterActivity.class);
-            startActivity(intent);
+        Intent intent;
+        if (!signUp) {
+            intent = new Intent(this, RegisterActivity.class);
         } else {
-            Intent intent = new Intent(this, SignInActivity.class);
-            startActivity(intent);
+            intent = new Intent(this, SignInActivity.class);
         }
+        startActivity(intent);
     }
 
     private void splashAnimations() {
