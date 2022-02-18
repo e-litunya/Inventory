@@ -5,7 +5,6 @@
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="android:colorBackground">@color/secondaryTextColor</item>
        <item name="android:textColorPrimary">@color/secondaryTextColor</item>
 
 
