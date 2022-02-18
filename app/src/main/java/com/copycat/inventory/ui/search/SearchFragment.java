@@ -67,6 +67,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setTitle(R.string.AppName);
+        progressDialog.setIcon(R.mipmap.ic_progress);
 
         return root;
     }

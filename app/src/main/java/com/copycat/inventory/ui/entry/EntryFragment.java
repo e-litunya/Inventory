@@ -82,6 +82,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
+        progressDialog.setIcon(R.mipmap.ic_progress);
         progressDialog.setTitle(R.string.AppName);
 
         String[] devices = getResources().getStringArray(R.array.device_type);

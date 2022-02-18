@@ -102,7 +102,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
-        progressDialog.setIcon(R.mipmap.ic_ccllogo);
+        progressDialog.setIcon(R.mipmap.ic_progress);
         progressDialog.setTitle(R.string.AppName);
 
 

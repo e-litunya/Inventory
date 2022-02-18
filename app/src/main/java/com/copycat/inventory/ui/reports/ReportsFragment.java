@@ -125,6 +125,7 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setTitle(getResources().getString(R.string.app_name));
+        progressDialog.setIcon(R.mipmap.ic_progress);
         customersTextView.setOnItemClickListener((parent, view, position, id) -> selectedCustomer = parent.getItemAtPosition(position).toString());
 
         inventoryDataArrayList = new ArrayList<>();

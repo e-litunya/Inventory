@@ -54,7 +54,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setTitle(R.string.AppName);
-        progressDialog.setIcon(R.mipmap.ic_launcher);
+        progressDialog.setIcon(R.mipmap.ic_progress);
         countryCodePicker.registerCarrierNumberEditText(phone);
         register.setOnClickListener(this);
 
