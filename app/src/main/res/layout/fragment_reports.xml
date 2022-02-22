@@ -47,22 +47,23 @@
 
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:id="@+id/customerInventory"
-        android:scrollbars="vertical"
-        android:layout_weight="1"
-        android:layout_height="0dp"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/exportButton"
-        app:backgroundTint="@color/secondaryLightColor"
-        android:contentDescription="@string/exportReport"
-        android:src="@mipmap/ic_export_xls"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/table_row_padding"
-        app:fabSize="normal"/>
+       <androidx.recyclerview.widget.RecyclerView
+           android:layout_width="match_parent"
+           android:id="@+id/customerInventory"
+           android:scrollbars="vertical"
+           android:layout_weight="1"
+           android:layout_height="0dp"/>
+
+       <com.google.android.material.floatingactionbutton.FloatingActionButton
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:id="@+id/exportButton"
+           app:backgroundTint="@color/secondaryLightColor"
+           android:contentDescription="@string/exportReport"
+           android:src="@mipmap/ic_export_xls"
+           android:layout_gravity="bottom|end"
+           android:layout_margin="@dimen/table_row_padding"
+           app:fabSize="normal"/>
 
 </LinearLayout>

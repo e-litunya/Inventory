@@ -1,5 +1,7 @@
 package com.copycat.inventory.ui.search;
 
+import static com.copycat.inventory.MainActivity.hasInternet;
+
 import android.app.ProgressDialog;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -31,9 +34,9 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
 
     private FragmentSearchBinding binding;
     private EditText serialNumber;
-    private TextView customer,datacenter,rack,deviceType,engineer,
-            formFactor,vendor,chassisSerial,chassisModel,
-            chassisSlot,deviceID,deviceModel,deviceNumber,rackPosition,productLabel;
+    private TextView customer, datacenter, rack, deviceType, engineer,
+            formFactor, vendor, chassisSerial, chassisModel,
+            chassisSlot, deviceID, deviceModel, deviceNumber, rackPosition, productLabel;
     private ImageButton imageButton;
     private ProgressDialog progressDialog;
 
@@ -45,25 +48,25 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        serialNumber=root.findViewById(R.id.search_serial);
-        customer=root.findViewById(R.id.search_customer);
-        productLabel=root.findViewById(R.id.vendorLabel);
-        datacenter=root.findViewById(R.id.search_datacenter);
-        rack=root.findViewById(R.id.search_rack);
-        deviceType=root.findViewById(R.id.search_system_type);
-        formFactor=root.findViewById(R.id.search_formFactor);
-        vendor=root.findViewById(R.id.search_vendor);
-        chassisSerial=root.findViewById(R.id.search_encSerial);
-        chassisModel=root.findViewById(R.id.search_encModel);
-        chassisSlot=root.findViewById(R.id.search_slot);
-        deviceID=root.findViewById(R.id.search_id);
-        deviceModel=root.findViewById(R.id.search_model);
-        deviceNumber=root.findViewById(R.id.search_modelNumber);
-        rackPosition=root.findViewById(R.id.search_rackPosition);
-        imageButton=root.findViewById(R.id.search_button);
-        engineer=root.findViewById(R.id.search_engineer);
+        serialNumber = root.findViewById(R.id.search_serial);
+        customer = root.findViewById(R.id.search_customer);
+        productLabel = root.findViewById(R.id.vendorLabel);
+        datacenter = root.findViewById(R.id.search_datacenter);
+        rack = root.findViewById(R.id.search_rack);
+        deviceType = root.findViewById(R.id.search_system_type);
+        formFactor = root.findViewById(R.id.search_formFactor);
+        vendor = root.findViewById(R.id.search_vendor);
+        chassisSerial = root.findViewById(R.id.search_encSerial);
+        chassisModel = root.findViewById(R.id.search_encModel);
+        chassisSlot = root.findViewById(R.id.search_slot);
+        deviceID = root.findViewById(R.id.search_id);
+        deviceModel = root.findViewById(R.id.search_model);
+        deviceNumber = root.findViewById(R.id.search_modelNumber);
+        rackPosition = root.findViewById(R.id.search_rackPosition);
+        imageButton = root.findViewById(R.id.search_button);
+        engineer = root.findViewById(R.id.search_engineer);
         imageButton.setOnClickListener(this);
-        progressDialog=new ProgressDialog(getContext());
+        progressDialog = new ProgressDialog(getContext());
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setTitle(R.string.AppName);
@@ -80,81 +83,81 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if (v==imageButton)
-        {
-            if (!TextUtils.isEmpty(serialNumber.getText().toString()))
-            {
+        if (v == imageButton) {
+            if (!TextUtils.isEmpty(serialNumber.getText().toString())) {
                 clearText();
                 searchAndUpdateView(serialNumber.getText().toString());
-            }
-            else
-            {
-                Toast.makeText(getContext(),R.string.emptySerial,Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), R.string.emptySerial, Toast.LENGTH_LONG).show();
             }
 
         }
     }
 
-    private void searchAndUpdateView(String deviceSerialNumber)
-    {
-        setProgressDialogMessage(getResources().getString(R.string.searchStart));
-        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference();
-        Query query = databaseReference.orderByChild("deviceSerial").equalTo(deviceSerialNumber);
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-                for (DataSnapshot dataSnapshot: snapshot.getChildren())
-                {
-                    SystemInventory systemInventory=dataSnapshot.getValue(SystemInventory.class);
+    }
 
-                    if (systemInventory!=null)
-                    {
-                        checkNullFields(systemInventory);
-                        customer.setText(systemInventory.getCustomerName());
-                        datacenter.setText(systemInventory.getDataCenter());
-                        rack.setText(systemInventory.getRackName());
-                        deviceType.setText(systemInventory.getDeviceType());
-                        formFactor.setText(systemInventory.getDeviceFormFactor());
-                        vendor.setText(systemInventory.getDeviceManufacturer());
-                        deviceID.setText(systemInventory.getDeviceSerial());
-                        deviceModel.setText(systemInventory.getDeviceModel());
-                        deviceNumber.setText(systemInventory.getDeviceModelNumber());
-                        rackPosition.setText(systemInventory.getRackPosition());
-                        engineer.setText(systemInventory.getUserID());
-                        chassisSerial.setText(systemInventory.getChassisSerial());
-                        chassisModel.setText(systemInventory.getChassisModel());
+    private void searchAndUpdateView(String deviceSerialNumber) {
+        //check internet availability
+        if (hasInternet(getContext())) {
+            setProgressDialogMessage(getResources().getString(R.string.searchStart));
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+            Query query = databaseReference.orderByChild("deviceSerial").equalTo(deviceSerialNumber);
+            query.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        SystemInventory systemInventory = dataSnapshot.getValue(SystemInventory.class);
+
+                        if (systemInventory != null) {
+                            checkNullFields(systemInventory);
+                            customer.setText(systemInventory.getCustomerName());
+                            datacenter.setText(systemInventory.getDataCenter());
+                            rack.setText(systemInventory.getRackName());
+                            deviceType.setText(systemInventory.getDeviceType());
+                            formFactor.setText(systemInventory.getDeviceFormFactor());
+                            vendor.setText(systemInventory.getDeviceManufacturer());
+                            deviceID.setText(systemInventory.getDeviceSerial());
+                            deviceModel.setText(systemInventory.getDeviceModel());
+                            deviceNumber.setText(systemInventory.getDeviceModelNumber());
+                            rackPosition.setText(systemInventory.getRackPosition());
+                            engineer.setText(systemInventory.getUserID());
+                            chassisSerial.setText(systemInventory.getChassisSerial());
+                            chassisModel.setText(systemInventory.getChassisModel());
+
+                        }
+
 
                     }
+                    if (!snapshot.exists()) {
+                        String message = getResources().getString(R.string.noRecord) + serialNumber.getText().toString();
+                        setProgressDialogMessage(message);
 
-
-
+                    }
                 }
-                if (!snapshot.exists())
-                {
-                    String message= getResources().getString(R.string.noRecord)+serialNumber.getText().toString();
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                    String message = getResources().getString(R.string.errorLabel) + error.getMessage();
                     setProgressDialogMessage(message);
 
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-                String message=getResources().getString(R.string.errorLabel)+error.getMessage();
-                setProgressDialogMessage(message);
-
-            }
-        });
+            });
+        } else {
+            setProgressDialogMessage(getString(R.string.internetSearch));
+        }
 
 
     }
 
 
-    private void setProgressDialogMessage(String message)
-    {
-        if (progressDialog.isShowing())
-        {
+    private void setProgressDialogMessage(String message) {
+        if (progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
         progressDialog.setMessage(message);
@@ -162,18 +165,17 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         progressDialog.show();
         try {
 
-            Handler handler=new Handler();
-            handler.postDelayed(() -> progressDialog.dismiss(),2000);
+            Handler handler = new Handler();
+            handler.postDelayed(() -> progressDialog.dismiss(), 2000);
 
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-    private void clearText()
-    {
-        String emptyText=getResources().getString(R.string.emptyString);
+
+    private void clearText() {
+        String emptyText = getResources().getString(R.string.emptyString);
         customer.setText(emptyText);
         datacenter.setText(emptyText);
         rack.setText(emptyText);
@@ -190,60 +192,47 @@ public class SearchFragment extends Fragment implements View.OnClickListener {
         engineer.setText(emptyText);
 
 
-
     }
 
-    private void checkNullFields(SystemInventory systemInventory)
-    {
-        if (TextUtils.isEmpty(systemInventory.getDeviceModelNumber()) || systemInventory.getDeviceModelNumber()==null)
-        {
+    private void checkNullFields(SystemInventory systemInventory) {
+        if (TextUtils.isEmpty(systemInventory.getDeviceModelNumber()) || systemInventory.getDeviceModelNumber() == null) {
             systemInventory.setDeviceModelNumber(getResources().getString(R.string.unavailable));
         }
-        if (TextUtils.isEmpty(systemInventory.getDeviceFormFactor()) || systemInventory.getDeviceFormFactor()==null)
-        {
+        if (TextUtils.isEmpty(systemInventory.getDeviceFormFactor()) || systemInventory.getDeviceFormFactor() == null) {
             systemInventory.setDeviceFormFactor(getResources().getString(R.string.unavailable));
         }
-        if (TextUtils.isEmpty(systemInventory.getChassisSerial()) || systemInventory.getChassisSerial()==null)
-        {
+        if (TextUtils.isEmpty(systemInventory.getChassisSerial()) || systemInventory.getChassisSerial() == null) {
             systemInventory.setChassisSerial(getResources().getString(R.string.unavailable));
         }
-        if (TextUtils.isEmpty(systemInventory.getChassisModel()) || systemInventory.getChassisModel()==null)
-        {
+        if (TextUtils.isEmpty(systemInventory.getChassisModel()) || systemInventory.getChassisModel() == null) {
             systemInventory.setChassisModel(getResources().getString(R.string.unavailable));
         }
-        if (TextUtils.isEmpty(systemInventory.getDeviceSerial()) || systemInventory.getDeviceSerial()==null)
-        {
+        if (TextUtils.isEmpty(systemInventory.getDeviceSerial()) || systemInventory.getDeviceSerial() == null) {
             systemInventory.setDeviceSerial(getResources().getString(R.string.unavailable));
         }
-        if (TextUtils.isEmpty(systemInventory.getRackPosition()) || systemInventory.getRackPosition()==null)
-        {
+        if (TextUtils.isEmpty(systemInventory.getRackPosition()) || systemInventory.getRackPosition() == null) {
             systemInventory.setRackPosition(getResources().getString(R.string.unavailable));
         }
-        if (TextUtils.isEmpty(String.valueOf(systemInventory.getServerSlot()))||systemInventory.getServerSlot()==0)
-        {
+        if (TextUtils.isEmpty(String.valueOf(systemInventory.getServerSlot())) || systemInventory.getServerSlot() == 0) {
             chassisSlot.setText(getResources().getString(R.string.unavailable));
-        }
-        else
-        {
+        } else {
             chassisSlot.setText(String.valueOf(systemInventory.getServerSlot()));
         }
 
-        if (systemInventory.getDeviceManufacturer().equalsIgnoreCase("IBM"))
-        {
+        if (systemInventory.getDeviceManufacturer().equalsIgnoreCase("IBM")) {
             productLabel.setText(getResources().getString(R.string.system_machine));
-        }
-        else
-        {
+        } else {
             productLabel.setText(R.string.system_product);
         }
-        if (systemInventory.getDeviceFormFactor().equalsIgnoreCase("Chassis"))
-        {
+        if (systemInventory.getDeviceFormFactor().equalsIgnoreCase("Chassis")) {
             systemInventory.setDeviceModel(getResources().getString(R.string.unavailable));
             systemInventory.setDeviceSerial(getResources().getString(R.string.unavailable));
             chassisSerial.setTypeface(chassisSerial.getTypeface(), Typeface.BOLD);
-            deviceID.setTypeface(deviceID.getTypeface(),Typeface.NORMAL);
+            deviceID.setTypeface(deviceID.getTypeface(), Typeface.NORMAL);
         }
 
 
     }
+
+
 }

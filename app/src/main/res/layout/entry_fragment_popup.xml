@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        app:cardCornerRadius="@dimen/table_row_padding"
+        app:cardElevation="@dimen/table_row_padding_small"
+        android:layout_height="wrap_content">
+
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="32sp"
+                android:textStyle="normal"
+                android:textAlignment="center"
+                android:textColor="@color/primaryTextColor"
+                android:text="@string/menu"
+                android:layout_height="wrap_content"/>
+
+            <TableRow android:paddingEnd="@dimen/table_row_padding" android:paddingStart="@dimen/table_row_padding" android:weightSum="2" >
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    app:civ_border_overlay="true"
+                    app:civ_border_width="1dp"
+                    android:id="@+id/img_save"
+                    android:src="@drawable/ic_baseline_save_36"
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    app:civ_border_overlay="true"
+                    app:civ_border_width="1dp"
+                    android:id="@+id/img_scan"
+                    android:src="@drawable/ic_baseline_document_scanner_36"
+                    />
+
+            </TableRow>
+
+            <TableRow android:weightSum="2" android:paddingStart="@dimen/table_row_padding" android:paddingEnd="@dimen/table_row_padding" >
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/save"
+                    android:textAlignment="center"
+                    android:textColor="@color/primaryTextColor"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:textSize="24sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:textColor="@color/primaryTextColor"
+                    android:text="@string/scan"
+                    />
+
+            </TableRow>
+
+
+        </TableLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

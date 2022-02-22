@@ -314,18 +314,6 @@
 
     </TableRow>
 
-    <TableRow android:padding="@dimen/table_row_padding_small" android:weightSum="1">
-        <ImageButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/save"
-            android:id="@+id/saveButton"
-            android:src="@mipmap/outline_save_white_48"
-            android:background="@color/secondaryDarkColor"
-            />
-    </TableRow>
-
 </TableLayout>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/ocrButton"
@@ -335,7 +323,7 @@
             android:contentDescription="@string/capture"
             android:padding="@dimen/table_row_padding"
             app:backgroundTint="@color/secondaryLightColor"
-            android:src="@drawable/ic_baseline_filter_center_focus_48"
+            android:src="@drawable/ic_baseline_add_48"
             app:fabSize="normal" />
 
 </LinearLayout>

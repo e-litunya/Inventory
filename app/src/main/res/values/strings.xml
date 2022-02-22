@@ -117,4 +117,9 @@
     <string name="verificationCompleted">Verification Complete Signing in…</string>
     <string name="wait">Waiting for SMS code…</string>
     <string name="permissionDenied">Permission to write to storage denied</string>
+    <string name="internetSearch">Database query failed; connect to internet</string>
+    <string name="customerQuery">Fetching customer from firebase…</string>
+    <string name="customerError">Failed to fetch customers from firebase; connect to internet…</string>
+    <string name="scan">Scan</string>
+    <string name="menu">Menu</string>
 </resources>

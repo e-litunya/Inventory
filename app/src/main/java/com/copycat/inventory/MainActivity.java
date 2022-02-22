@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -35,10 +37,23 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int STORAGE_CODE = 181;
     public static String userID;
-    public static String[] listedCustomers;
     private FirebaseAuth firebaseAuth;
-    private static final int STORAGE_CODE=181;
+
+    public static boolean hasInternet(Context context) {
+        boolean connected = false;
+        try {
+
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            connected = networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return connected;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,17 +72,13 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
         Intent intent = getIntent();
         userID = intent.getStringExtra(Constants.USER);
-        listedCustomers = intent.getStringArrayExtra(Constants.CUSTOMER_lABEL);
-
-
         if (!checkCameraPermission()) {
             askCameraPermission();
         }
 
-       if (!checkStoragePermission())
-       {
-           ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},STORAGE_CODE);
-       }
+        if (!checkStoragePermission()) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.ACCESS_NETWORK_STATE}, STORAGE_CODE);
+        }
         firebaseAuth = FirebaseAuth.getInstance();
 
     }
@@ -78,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         firebaseAuth.signOut();
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -87,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkCameraPermission() {
         boolean result;
-        result=ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED;
+        result = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED;
 
 
         return result;
@@ -99,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -157,26 +165,22 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
 
-           if(requestCode==STORAGE_CODE) {
-               if (grantResults.length > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
-                   SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
-                   SharedPreferences.Editor editor = sharedPreferences.edit();
-                   editor.putBoolean(Constants.FOLDER, true);
-                   editor.apply();
-               }
+        if (requestCode == STORAGE_CODE) {
+            if (grantResults.length > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+                SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(Constants.FOLDER, true);
+                editor.apply();
+            }
 
-           }
-
-
+        }
 
 
     }
 
-    private boolean checkStoragePermission()
-    {
+    private boolean checkStoragePermission() {
 
-        return getSharedPreferences(Constants.LOCALDB,MODE_PRIVATE).getBoolean(Constants.FOLDER,false);
+        return getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE).getBoolean(Constants.FOLDER, false);
     }
-
 
 }

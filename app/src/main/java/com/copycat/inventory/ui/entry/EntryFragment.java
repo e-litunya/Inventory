@@ -4,13 +4,16 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +35,8 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class EntryFragment extends Fragment implements View.OnClickListener {
 
     private FragmentEntryBinding binding;
@@ -40,9 +45,11 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
     private String deviceVendor;
     private String deviceForm;
     private String device;
+    private View popupView;
+    private PopupWindow menuPopup;
+    private CircleImageView imgSave, imgScan;
     private EditText customerName, datacenterName, rack, enclosureSn, enclosureModel, deviceSlot, serialNumber, rackStart, rackEnd, deviceModel, modelNumber;
     private FloatingActionButton captureButton;
-    private ImageButton saveButton;
     private ProgressDialog progressDialog;
     private boolean computeIO, nonCompute;
     private TextInputLayout machineType;
@@ -77,7 +84,6 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         deviceType = root.findViewById(R.id.system_type);
         machineType = root.findViewById(R.id.product_number);
         formFactor = root.findViewById(R.id.form_type);
-        saveButton = root.findViewById(R.id.saveButton);
         captureButton = root.findViewById(R.id.ocrButton);
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -142,7 +148,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
                 computeIO = false;
             }
         });
-        saveButton.setOnClickListener(this);
+
         captureButton.setOnClickListener(this);
         vendors.setOnItemClickListener((parent, view, position, id) -> {
 
@@ -158,7 +164,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-
+        prepareMenu();
         return root;
 
     }
@@ -175,6 +181,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         super.onDestroyView();
         binding = null;
     }
+
 
     private String getUserID(String user) {
         String userName = "";
@@ -332,15 +339,40 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if (v == saveButton) {
+
+        int viewID = v.getId();
+
+        switch (viewID) {
+            case R.id.img_save:
+                hidePopup();
+                saveData();
+                break;
+            case R.id.img_scan:
+                hidePopup();
+                CropImage.activity().setGuidelines(CropImageView.Guidelines.ON).start(getActivity());
+                break;
+            case R.id.ocrButton:
+                menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, 0, 0);
+                break;
+
+        }
+
+      /*  if (v == imgSave) {
 
             saveData();
         }
 
         if (v == captureButton) {
 
+
+            menuPopup.showAtLocation(binding.getRoot(),Gravity.BOTTOM,0,0);
+        }
+        if (v==imgScan)
+        {
             CropImage.activity().setGuidelines(CropImageView.Guidelines.ON).start(getActivity());
         }
+
+       */
 
     }
 
@@ -354,12 +386,7 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
         try {
 
             Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    progressDialog.dismiss();
-                }
-            }, 3000);
+            handler.postDelayed(() -> progressDialog.dismiss(), 3000);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -557,4 +584,25 @@ public class EntryFragment extends Fragment implements View.OnClickListener {
     }
 
 
+    private void prepareMenu() {
+        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+        popupView = layoutInflater.inflate(R.layout.entry_fragment_popup, binding.getRoot(), false);
+        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        int width = LinearLayout.LayoutParams.MATCH_PARENT;
+        menuPopup = new PopupWindow(popupView, width, height, true);
+        imgSave = popupView.findViewById(R.id.img_save);
+        imgScan = popupView.findViewById(R.id.img_scan);
+        imgSave.setOnClickListener(this);
+        imgScan.setOnClickListener(this);
+        popupView.setOnClickListener(v -> hidePopup());
+    }
+
+
+
+
+    private void hidePopup() {
+        if (menuPopup.isShowing()) {
+            menuPopup.dismiss();
+        }
+    }
 }

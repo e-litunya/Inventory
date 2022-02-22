@@ -54,9 +54,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/productDetails"
-        android:padding="@dimen/table_row_padding_small"
+        android:padding="@dimen/table_row_padding"
         app:cardCornerRadius="@dimen/table_row_padding"
-        android:elevation="8dp">
+        android:elevation="12dp">
 
         <TableLayout
             android:layout_width="match_parent"

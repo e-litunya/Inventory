@@ -150,7 +150,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             firebaseAuth.signInWithEmailAndPassword(userEmail, userPassword)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            customers = getCustomers();
+                            //customers = getCustomers();
                             FirebaseUser user = firebaseAuth.getCurrentUser();
                             setProgressDialogMessage(getString(R.string.logOncomplete), false);
                             Handler handler = new Handler();
@@ -198,7 +198,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         firebaseAuth.signInWithCredential(authCredential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        customers = getCustomers();
+                        //customers = getCustomers();
                         FirebaseUser user = firebaseAuth.getCurrentUser();
                         String myEmail = getSharedPreferences(Constants.LOCALDB, MODE_PRIVATE).getString(Constants.USER_EMAIL, getString(R.string.emptyString));
                         setProgressDialogMessage(getString(R.string.logOncomplete), false);

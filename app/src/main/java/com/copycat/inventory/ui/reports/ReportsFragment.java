@@ -14,10 +14,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -64,14 +64,12 @@ import java.util.Locale;
 
 public class ReportsFragment extends Fragment implements View.OnClickListener {
 
+    ArrayAdapter<String> customerAdapters;
     private FragmentReportsBinding binding;
     private ImageButton cloudDownload;
     private String selectedCustomer;
     private ProgressDialog progressDialog;
     private HSSFWorkbook hssfWorkbook;
-    private ArrayList<InventoryData> inventoryDataArrayList;
-    private InventoryAdapter inventoryAdapter;
-    private FloatingActionButton exportReportButton;
     private final ActivityResultLauncher<Intent> fileWrite = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
@@ -80,8 +78,7 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
                 ParcelFileDescriptor descriptor = null;
                 try {
                     assert intent != null;
-                    if (intent.getData()!=null)
-                    {
+                    if (intent.getData() != null) {
                         descriptor = getContext().getContentResolver().openFileDescriptor(intent.getData(), "rw");
                     }
 
@@ -102,6 +99,10 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
             }
         }
     });
+    private ArrayList<InventoryData> inventoryDataArrayList;
+    private InventoryAdapter inventoryAdapter;
+    private FloatingActionButton exportReportButton;
+    private ArrayList<String> listedCustomers;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -111,10 +112,9 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         View root = binding.getRoot();
         selectedCustomer = null;
         AutoCompleteTextView customersTextView = root.findViewById(R.id.report_customers);
-        ArrayAdapter<String> customerAdapters = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, MainActivity.listedCustomers);
+        customerAdapters = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, listedCustomers);
         customersTextView.setAdapter(customerAdapters);
         customersTextView.setThreshold(2);
-        customerAdapters.notifyDataSetChanged();
         RecyclerView recyclerView = root.findViewById(R.id.customerInventory);
         cloudDownload = root.findViewById(R.id.downloadInventory);
         cloudDownload.setOnClickListener(this);
@@ -127,7 +127,6 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         progressDialog.setTitle(getResources().getString(R.string.app_name));
         progressDialog.setIcon(R.mipmap.ic_progress);
         customersTextView.setOnItemClickListener((parent, view, position, id) -> selectedCustomer = parent.getItemAtPosition(position).toString());
-
         inventoryDataArrayList = new ArrayList<>();
         inventoryAdapter = new InventoryAdapter(inventoryDataArrayList, getContext());
         recyclerView.setAdapter(inventoryAdapter);
@@ -141,6 +140,7 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         super.onDestroyView();
         binding = null;
     }
+
 
     @Override
     public void onClick(View v) {
@@ -168,6 +168,12 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
             }
         }
 
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getCustomers();
     }
 
     private void getCustomerInventory(String customerName) {
@@ -233,18 +239,23 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
     }
 
     private void setProgressDialogMessage(String message, boolean timed) {
-        if (progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
+        if (progressDialog != null) {
+            if (progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
 
-        progressDialog.setMessage(message);
+            progressDialog.setMessage(message);
 
-        if (timed) {
-            progressDialog.show();
-            Handler handler = new Handler();
-            handler.postDelayed(() -> progressDialog.dismiss(), 2000);
+            if (timed) {
+                progressDialog.show();
+                Handler handler = new Handler();
+                handler.postDelayed(() -> progressDialog.dismiss(), 2000);
+            } else {
+                progressDialog.show();
+            }
         } else {
-            progressDialog.show();
+            //show toast instead
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -386,8 +397,9 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String storagePath = null;
+        listedCustomers = new ArrayList<>();
         hssfWorkbook = null;
+        getCustomers();
 
     }
 
@@ -415,4 +427,68 @@ public class ReportsFragment extends Fragment implements View.OnClickListener {
         fileWrite.launch(docCreate);
     }
 
+    private void getCustomers() {
+        listedCustomers.clear();
+        ArrayList<String> rawData = new ArrayList<>();
+        if (customerAdapters == null) {
+            customerAdapters = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, listedCustomers);
+        }
+        if (MainActivity.hasInternet(getContext())) {
+
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+            Query customerQuery = databaseReference.orderByKey();
+
+            customerQuery.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    if (snapshot.exists()) {
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            SystemInventory systemInventory = dataSnapshot.getValue(SystemInventory.class);
+                            if (systemInventory != null) {
+                                rawData.add(systemInventory.getCustomerName());
+                                removeDuplicates(rawData);
+
+                            }
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "No Data", Toast.LENGTH_LONG).show();
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+        } else {
+            setProgressDialogMessage(getString(R.string.customerError), true);
+        }
+
+
+    }
+
+    private void removeDuplicates(ArrayList<String> rawData) {
+        for (String customerName : rawData) {
+            if (!listedCustomers.contains(customerName)) {
+                listedCustomers.add(customerName);
+                customerAdapters.notifyDataSetChanged();
+            }
+        }
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getCustomers();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getCustomers();
+    }
 }
